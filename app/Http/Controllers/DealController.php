@@ -49,4 +49,24 @@ class DealController extends Controller
         $deal->delete();
         return redirect()->route('deals.index');
     }
+
+    public function filter(Request $request)
+    {
+        $search = $request->get('search');
+        $status = $request->get('status');
+        
+        $query = Deal::with('client');
+        
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        
+        if ($status && $status != 'all') {
+            $query->where('status', $status);
+        }
+        
+        $deals = $query->paginate(10);
+        
+        return view('deals.index', compact('deals'));
+    }
 }

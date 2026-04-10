@@ -25,5 +25,11 @@ Route::get('/', function () {
     return view('welcome', compact('totalDeals', 'totalAmount', 'statusCounts'));
 });
 
-Route::resource('clients', ClientController::class);
-Route::resource('deals', DealController::class);
+Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+Route::get('/clients/search', [ClientController::class, 'search'])->name('clients.search');
+Route::resource('clients', ClientController::class)->except(['index']);
+Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
+Route::get('/deals/filter', [DealController::class, 'filter'])->name('deals.filter');
+Route::resource('deals', DealController::class)->except(['index']);
+Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
+Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');

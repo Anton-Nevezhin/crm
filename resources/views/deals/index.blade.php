@@ -7,6 +7,21 @@
 </head>
 <body>
     <h1>Список сделок</h1>
+
+    <form method="GET" action="{{ route('deals.filter') }}" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}" style="padding: 5px; width: 200px;">
+        
+        <select name="status" style="padding: 5px;">
+            <option value="all">Все статусы</option>
+            <option value="new" {{ request()->get('status') == 'new' ? 'selected' : '' }}>🆕 Новые</option>
+            <option value="in_progress" {{ request()->get('status') == 'in_progress' ? 'selected' : '' }}>⏳ В работе</option>
+            <option value="closed" {{ request()->get('status') == 'closed' ? 'selected' : '' }}>✅ Закрытые</option>
+            <option value="lost" {{ request()->get('status') == 'lost' ? 'selected' : '' }}>❌ Потерянные</option>
+        </select>
+        
+        <button type="submit">Применить</button>
+        <a href="{{ route('deals.index') }}">Сбросить</a>
+    </form>
     
     <a href="{{ route('deals.create') }}">Добавить сделку</a>
     <a href="{{ route('clients.index') }}">Назад к клиентам</a>

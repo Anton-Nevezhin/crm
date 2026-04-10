@@ -6,6 +6,15 @@
 </head>
 <body>
     <h1>Список клиентов</h1>
+
+    <a href="{{ route('clients.export.excel') }}">📊 Экспорт в Excel</a>
+    <a href="{{ route('clients.export.csv') }}" style="margin-left: 15px;">📥 Экспорт в CSV</a>
+
+    <form method="GET" action="{{ route('clients.search') }}" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Поиск по имени, email или телефону..." value="{{ request()->get('search') }}" style="padding: 5px; width: 300px;">
+        <button type="submit">Найти</button>
+        <a href="{{ route('clients.index') }}">Сбросить</a>
+    </form>
     
     <a href="{{ route('clients.create') }}">Добавить клиента</a>
     
@@ -18,6 +27,7 @@
                 <th>Телефон</th>
                 <th>Адрес</th>
                 <th>Сделок</th>
+                <th>Сумма сделок</th>
                 <th>Действия</th>
             </tr>
         </thead>
@@ -29,7 +39,8 @@
                 <td>{{ $client->email }}</td>
                 <td>{{ $client->phone ?? '—' }}</td>
                 <td>{{ $client->address ?? '—' }}</td>
-                <td>{{ $client->deals->count() }}</td>
+                <td>{{ $client->deals_count }}</td>
+                <td>{{ number_format($client->deals_sum_amount ?? 0, 2) }} ₽</td>
                 <td>
                     <a href="{{ route('clients.show', $client) }}">Просмотр</a>
                     <a href="{{ route('clients.edit', $client) }}">Редактировать</a>
