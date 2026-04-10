@@ -10,14 +10,15 @@ class DealController extends Controller
 {
     public function index()
     {
-        $deals = Deal::with('client')->get();
+        $deals = Deal::with('client')->paginate(10);
         return view('deals.index', compact('deals'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $clients = Client::all();
-        return view('deals.create', compact('clients'));
+        $selectedClient = $request->query('client_id');
+        return view('deals.create', compact('clients', 'selectedClient'));
     }
 
     public function store(Request $request)

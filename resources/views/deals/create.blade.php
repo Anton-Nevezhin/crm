@@ -16,7 +16,9 @@
             <select name="client_id" required>
                 <option value="">-- Выберите клиента --</option>
                 @foreach($clients as $client)
-                    <option value="{{ $client->id }}">{{ $client->name }}</option>
+                    <option value="{{ $client->id }}" {{ $selectedClient == $client->id ? 'selected' : '' }}>
+                        {{ $client->name }}
+                    </option>
                 @endforeach
             </select>
         </div>

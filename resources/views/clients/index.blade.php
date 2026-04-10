@@ -17,6 +17,7 @@
                 <th>Email</th>
                 <th>Телефон</th>
                 <th>Адрес</th>
+                <th>Сделок</th>
                 <th>Действия</th>
             </tr>
         </thead>
@@ -28,6 +29,7 @@
                 <td>{{ $client->email }}</td>
                 <td>{{ $client->phone ?? '—' }}</td>
                 <td>{{ $client->address ?? '—' }}</td>
+                <td>{{ $client->deals->count() }}</td>
                 <td>
                     <a href="{{ route('clients.show', $client) }}">Просмотр</a>
                     <a href="{{ route('clients.edit', $client) }}">Редактировать</a>
@@ -41,5 +43,8 @@
             @endforeach
         </tbody>
     </table>
+    <div>
+        {{ $clients->links() }}
+    </div>
 </body>
 </html>

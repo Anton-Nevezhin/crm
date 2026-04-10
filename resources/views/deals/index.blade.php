@@ -53,5 +53,8 @@
             @endforeach
         </tbody>
     </table>
+    <div>
+        {{ $deals->links() }}
+    </div>
 </body>
 </html>
