@@ -1,1 +1,0 @@
-echo "<?php phpinfo(); ?>" > public\test.php

@@ -5,19 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Client extends Model
+class Deal extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'client_id',
         'name',
-        'email', 
-        'phone',
-        'address'
+        'amount',
+        'status',
+        'description'
     ];
 
-    public function deals()
+    public function client()
     {
-        return $this->hasMany(Deal::class);
+        return $this->belongsTo(Client::class);
     }
 }
