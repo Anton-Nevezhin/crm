@@ -96,15 +96,48 @@ class ClientController extends Controller
     public function search(Request $request)
     {
         $search = $request->get('search');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $sortField = $request->get('sort_field', 'id');
+        $sortDir = $request->get('sort_dir', 'asc');
         
-        $clients = Client::where('name', 'like', "%{$search}%")
-            ->orWhere('email', 'like', "%{$search}%")
-            ->orWhere('phone', 'like', "%{$search}%")
-            ->paginate(10);
+        $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
+        $allowedDirs = ['asc', 'desc'];
         
-        return view('clients.index', compact('clients'));
+        if (!in_array($sortField, $allowedFields)) {
+            $sortField = 'id';
+        }
+        
+        if (!in_array($sortDir, $allowedDirs)) {
+            $sortDir = 'asc';
+        }
+        
+        $query = Client::withCount('deals')->withSum('deals', 'amount');
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
+        $clients = $query->orderBy($sortField, $sortDir)->paginate(10);
+        
+        $field = $sortField;
+        $direction = $sortDir;
+        
+        return view('clients.index', compact('clients', 'field', 'direction'));
     }
-
+    
     public function sort($field, $direction)
     {
         $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
@@ -118,10 +151,28 @@ class ClientController extends Controller
             $direction = 'asc';
         }
         
-        $clients = Client::withCount('deals')
-            ->withSum('deals', 'amount')
-            ->orderBy($field, $direction)
-            ->paginate(10);
+        // Получаем параметры фильтра из запроса
+        $search = request()->get('search');
+        $dateFrom = request()->get('date_from');
+        $dateTo = request()->get('date_to');
+        
+        $query = Client::withCount('deals')->withSum('deals', 'amount');
+        
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+        }
+        
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
+        $clients = $query->orderBy($field, $direction)->paginate(10);
         
         return view('clients.index', compact('clients', 'field', 'direction'));
     }

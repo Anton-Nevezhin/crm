@@ -14,16 +14,22 @@
         </div>
     @endif
 
-    <form method="GET" action="{{ route('deals.filter') }}" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}" style="padding: 5px; width: 200px;">
+    <form method="GET" action="{{ route('deals.index') }}" style="margin-bottom: 20px;">
+        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}">
         
-        <select name="status" style="padding: 5px;">
+        <select name="status">
             <option value="all">Все статусы</option>
             <option value="new" {{ request()->get('status') == 'new' ? 'selected' : '' }}>🆕 Новые</option>
             <option value="in_progress" {{ request()->get('status') == 'in_progress' ? 'selected' : '' }}>⏳ В работе</option>
             <option value="closed" {{ request()->get('status') == 'closed' ? 'selected' : '' }}>✅ Закрытые</option>
             <option value="lost" {{ request()->get('status') == 'lost' ? 'selected' : '' }}>❌ Потерянные</option>
         </select>
+        
+        <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
+        <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
+        
+        <input type="hidden" name="sort_field" value="{{ request()->get('sort_field', 'id') }}">
+        <input type="hidden" name="sort_dir" value="{{ request()->get('sort_dir', 'asc') }}">
         
         <button type="submit">Применить</button>
         <a href="{{ route('deals.index') }}">Сбросить</a>
@@ -35,12 +41,12 @@
     <table border="1" cellpadding="10">
         <thead>
             <tr>
-                <th><a href="{{ route('deals.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) }}">ID ↕</a></th>
+                <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'id', 'sort_dir' => (request()->get('sort_field') == 'id' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">ID ↕</a></th>
                 <th>Клиент</th>
-                <th><a href="{{ route('deals.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) }}">Название ↕</a></th>
-                <th><a href="{{ route('deals.sort', ['amount', $direction == 'asc' && $field == 'amount' ? 'desc' : 'asc']) }}">Сумма ↕</a></th>
-                <th><a href="{{ route('deals.sort', ['status', $direction == 'asc' && $field == 'status' ? 'desc' : 'asc']) }}">Статус ↕</a></th>
-                <th><a href="{{ route('deals.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) }}">Дата ↕</a></th>
+                <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'name', 'sort_dir' => (request()->get('sort_field') == 'name' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Название ↕</a></th>
+                <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'amount', 'sort_dir' => (request()->get('sort_field') == 'amount' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Сумма ↕</a></th>
+                <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'status', 'sort_dir' => (request()->get('sort_field') == 'status' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Статус ↕</a></th>
+                <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'created_at', 'sort_dir' => (request()->get('sort_field') == 'created_at' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Дата ↕</a></th>
                 <th>Действия</th>
             </tr>
         </thead>

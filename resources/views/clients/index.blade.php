@@ -18,9 +18,13 @@
 
     <form method="GET" action="{{ route('clients.search') }}" style="margin-bottom: 20px;">
         <input type="text" name="search" placeholder="Поиск по имени, email или телефону..." value="{{ request()->get('search') }}" style="padding: 5px; width: 300px;">
+        
+        <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
+        <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
+        
         <button type="submit">Найти</button>
         <a href="{{ route('clients.index') }}">Сбросить</a>
-
+        
         <input type="hidden" name="sort_field" value="{{ $field ?? 'id' }}">
         <input type="hidden" name="sort_dir" value="{{ $direction ?? 'asc' }}">
     </form>
@@ -30,14 +34,14 @@
     <table border="1" cellpadding="10">
         <thead>
             <tr>
-                <th><a href="{{ route('clients.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) }}">ID ↕</a></th>
-                <th><a href="{{ route('clients.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) }}">Имя ↕</a></th>
-                <th><a href="{{ route('clients.sort', ['email', $direction == 'asc' && $field == 'email' ? 'desc' : 'asc']) }}">Email ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">ID ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Имя ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['email', $direction == 'asc' && $field == 'email' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Email ↕</a></th>
                 <th>Телефон</th>
                 <th>Адрес</th>
                 <th>Сделок</th>
-                <th><a href="{{ route('clients.sort', ['deals_sum_amount', $direction == 'asc' && $field == 'deals_sum_amount' ? 'desc' : 'asc']) }}">Сумма сделок ↕</a></th>
-                <th><a href="{{ route('clients.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) }}">Дата создания ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['deals_sum_amount', $direction == 'asc' && $field == 'deals_sum_amount' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Сумма сделок ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Дата создания ↕</a></th>
                 <th>Действия</th>
             </tr>
         </thead>

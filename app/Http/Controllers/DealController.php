@@ -8,12 +8,47 @@ use Illuminate\Http\Request;
 
 class DealController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $deals = Deal::with('client')->orderBy('id', 'asc')->paginate(10);
-        $field = 'id';
-        $direction = 'asc';
-        return view('deals.index', compact('deals', 'field', 'direction'));
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        $sortField = $request->get('sort_field', 'id');
+        $sortDir = $request->get('sort_dir', 'asc');
+        
+        $allowedFields = ['id', 'name', 'amount', 'status', 'created_at'];
+        $allowedDirs = ['asc', 'desc'];
+        
+        if (!in_array($sortField, $allowedFields)) {
+            $sortField = 'id';
+        }
+        
+        if (!in_array($sortDir, $allowedDirs)) {
+            $sortDir = 'asc';
+        }
+        
+        $query = Deal::with('client');
+        
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        
+        if ($status && $status != 'all') {
+            $query->where('status', $status);
+        }
+        
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
+        $deals = $query->orderBy($sortField, $sortDir)->paginate(10);
+        
+        return view('deals.index', compact('deals'));
     }
 
     public function create(Request $request)
@@ -65,27 +100,7 @@ class DealController extends Controller
     public function destroy(Deal $deal)
     {
         $deal->delete();
-        return redirect()->route('deals.index');
-    }
-
-    public function filter(Request $request)
-    {
-        $search = $request->get('search');
-        $status = $request->get('status');
-        
-        $query = Deal::with('client');
-        
-        if ($search) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-        
-        if ($status && $status != 'all') {
-            $query->where('status', $status);
-        }
-        
-        $deals = $query->paginate(10);
-        
-        return view('deals.index', compact('deals'));
+        return redirect()->route('deals.index')->with('success', 'Сделка удалена');
     }
 
     public function sort($field, $direction)
@@ -101,9 +116,40 @@ class DealController extends Controller
             $direction = 'asc';
         }
         
-        $deals = Deal::with('client')
-            ->orderBy($field, $direction)
-            ->paginate(10);
+        $deals = Deal::with('client')->orderBy($field, $direction)->paginate(10);
+        
+        return view('deals.index', compact('deals', 'field', 'direction'));
+    }
+
+    public function filter(Request $request)
+    {
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+        
+        $query = Deal::with('client');
+        
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        
+        if ($status && $status != 'all') {
+            $query->where('status', $status);
+        }
+        
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
+        $deals = $query->paginate(10);
+        
+        $field = $request->get('sort_field', 'id');
+        $direction = $request->get('sort_dir', 'asc');
         
         return view('deals.index', compact('deals', 'field', 'direction'));
     }
