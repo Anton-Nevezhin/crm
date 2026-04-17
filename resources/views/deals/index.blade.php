@@ -8,6 +8,12 @@
 <body>
     <h1>Список сделок</h1>
 
+    @if(session('success'))
+        <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <form method="GET" action="{{ route('deals.filter') }}" style="margin-bottom: 20px;">
         <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}" style="padding: 5px; width: 200px;">
         
@@ -29,11 +35,12 @@
     <table border="1" cellpadding="10">
         <thead>
             <tr>
-                <th>ID</th>
+                <th><a href="{{ route('deals.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) }}">ID ↕</a></th>
                 <th>Клиент</th>
-                <th>Название</th>
-                <th>Сумма</th>
-                <th>Статус</th>
+                <th><a href="{{ route('deals.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) }}">Название ↕</a></th>
+                <th><a href="{{ route('deals.sort', ['amount', $direction == 'asc' && $field == 'amount' ? 'desc' : 'asc']) }}">Сумма ↕</a></th>
+                <th><a href="{{ route('deals.sort', ['status', $direction == 'asc' && $field == 'status' ? 'desc' : 'asc']) }}">Статус ↕</a></th>
+                <th><a href="{{ route('deals.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) }}">Дата ↕</a></th>
                 <th>Действия</th>
             </tr>
         </thead>
@@ -55,6 +62,7 @@
                         ❌ Потеряна
                     @endif
                 </td>
+                <td>{{ $deal->created_at }}</td>
                 <td>
                     <a href="{{ route('deals.show', $deal) }}">Просмотр</a>
                     <a href="{{ route('deals.edit', $deal) }}">Редактировать</a>

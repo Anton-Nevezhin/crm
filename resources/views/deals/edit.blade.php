@@ -8,6 +8,22 @@
 <body>
     <h1>Редактирование сделки: {{ $deal->name }}</h1>
     
+    @if(session('success'))
+        <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div style="color: red; padding: 10px; margin: 10px 0; border: 1px solid red;">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('deals.update', $deal) }}">
         @csrf
         @method('PUT')

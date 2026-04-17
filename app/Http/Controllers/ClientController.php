@@ -16,8 +16,15 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::withCount('deals')->withSum('deals', 'amount')->paginate(10);
-        return view('clients.index', compact('clients'));
+        $clients = Client::withCount('deals')
+            ->withSum('deals', 'amount')
+            ->orderBy('id', 'asc')
+            ->paginate(10);
+        
+        $field = 'id';
+        $direction = 'asc';
+        
+        return view('clients.index', compact('clients', 'field', 'direction'));
     }
 
     /**
@@ -33,9 +40,15 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        Client::create($request->all());
-        return redirect()->route('clients.index');
-
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:clients,email',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+        ]);
+        
+        Client::create($validated);
+        return redirect()->route('clients.index')->with('success', 'Клиент создан');
     }
 
     /**
@@ -59,9 +72,15 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
-        $client->update($request->all());
-        return redirect()->route('clients.index');
-
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:clients,email,' . $client->id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+        ]);
+        
+        $client->update($validated);
+        return redirect()->route('clients.index')->with('success', 'Клиент обновлён');
     }
 
     /**
@@ -84,6 +103,27 @@ class ClientController extends Controller
             ->paginate(10);
         
         return view('clients.index', compact('clients'));
+    }
+
+    public function sort($field, $direction)
+    {
+        $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
+        $allowedDirections = ['asc', 'desc'];
+        
+        if (!in_array($field, $allowedFields)) {
+            $field = 'id';
+        }
+        
+        if (!in_array($direction, $allowedDirections)) {
+            $direction = 'asc';
+        }
+        
+        $clients = Client::withCount('deals')
+            ->withSum('deals', 'amount')
+            ->orderBy($field, $direction)
+            ->paginate(10);
+        
+        return view('clients.index', compact('clients', 'field', 'direction'));
     }
 
     public function exportCsv()

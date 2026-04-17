@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DealController;
 use App\Models\Deal;
+use App\Models\Client;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +13,7 @@ use App\Models\Deal;
 */
 
 Route::get('/', function () {
+    // Статистика по сделкам
     $totalDeals = Deal::count();
     $totalAmount = Deal::sum('amount');
     
@@ -22,10 +24,21 @@ Route::get('/', function () {
         'lost' => Deal::where('status', 'lost')->count(),
     ];
     
-    return view('welcome', compact('totalDeals', 'totalAmount', 'statusCounts'));
+    // Статистика по клиентам
+    $totalClients = Client::count();
+    $clientsWithDeals = Client::has('deals')->count();
+    $clientsWithoutDeals = Client::doesntHave('deals')->count();
+    $totalDealsSum = Client::withSum('deals', 'amount')->get()->sum('deals_sum_amount');
+    
+    return view('welcome', compact(
+        'totalDeals', 'totalAmount', 'statusCounts',
+        'totalClients', 'clientsWithDeals', 'clientsWithoutDeals', 'totalDealsSum'
+    ));
 });
 
 Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+Route::get('/clients/sort/{field}/{direction}', [ClientController::class, 'sort'])->name('clients.sort');
+Route::get('/deals/sort/{field}/{direction}', [DealController::class, 'sort'])->name('deals.sort');
 Route::get('/clients/search', [ClientController::class, 'search'])->name('clients.search');
 Route::resource('clients', ClientController::class)->except(['index']);
 Route::get('/deals', [DealController::class, 'index'])->name('deals.index');

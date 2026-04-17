@@ -10,8 +10,10 @@ class DealController extends Controller
 {
     public function index()
     {
-        $deals = Deal::with('client')->paginate(10);
-        return view('deals.index', compact('deals'));
+        $deals = Deal::with('client')->orderBy('id', 'asc')->paginate(10);
+        $field = 'id';
+        $direction = 'asc';
+        return view('deals.index', compact('deals', 'field', 'direction'));
     }
 
     public function create(Request $request)
@@ -23,8 +25,16 @@ class DealController extends Controller
 
     public function store(Request $request)
     {
-        Deal::create($request->all());
-        return redirect()->route('deals.index');
+        $validated = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'status' => 'required|in:new,in_progress,closed,lost',
+            'description' => 'nullable|string',
+        ]);
+        
+        Deal::create($validated);
+        return redirect()->route('deals.index')->with('success', 'Сделка создана');
     }
 
     public function show(Deal $deal)
@@ -40,8 +50,16 @@ class DealController extends Controller
 
     public function update(Request $request, Deal $deal)
     {
-        $deal->update($request->all());
-        return redirect()->route('deals.index');
+        $validated = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0',
+            'status' => 'required|in:new,in_progress,closed,lost',
+            'description' => 'nullable|string',
+        ]);
+        
+        $deal->update($validated);
+        return redirect()->route('deals.index')->with('success', 'Сделка обновлена');
     }
 
     public function destroy(Deal $deal)
@@ -68,5 +86,25 @@ class DealController extends Controller
         $deals = $query->paginate(10);
         
         return view('deals.index', compact('deals'));
+    }
+
+    public function sort($field, $direction)
+    {
+        $allowedFields = ['id', 'name', 'amount', 'status', 'created_at'];
+        $allowedDirections = ['asc', 'desc'];
+        
+        if (!in_array($field, $allowedFields)) {
+            $field = 'id';
+        }
+        
+        if (!in_array($direction, $allowedDirections)) {
+            $direction = 'asc';
+        }
+        
+        $deals = Deal::with('client')
+            ->orderBy($field, $direction)
+            ->paginate(10);
+        
+        return view('deals.index', compact('deals', 'field', 'direction'));
     }
 }

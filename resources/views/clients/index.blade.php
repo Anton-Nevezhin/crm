@@ -7,6 +7,12 @@
 <body>
     <h1>Список клиентов</h1>
 
+    @if(session('success'))
+        <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <a href="{{ route('clients.export.excel') }}">📊 Экспорт в Excel</a>
     <a href="{{ route('clients.export.csv') }}" style="margin-left: 15px;">📥 Экспорт в CSV</a>
 
@@ -14,6 +20,9 @@
         <input type="text" name="search" placeholder="Поиск по имени, email или телефону..." value="{{ request()->get('search') }}" style="padding: 5px; width: 300px;">
         <button type="submit">Найти</button>
         <a href="{{ route('clients.index') }}">Сбросить</a>
+
+        <input type="hidden" name="sort_field" value="{{ $field ?? 'id' }}">
+        <input type="hidden" name="sort_dir" value="{{ $direction ?? 'asc' }}">
     </form>
     
     <a href="{{ route('clients.create') }}">Добавить клиента</a>
@@ -21,13 +30,14 @@
     <table border="1" cellpadding="10">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Имя</th>
-                <th>Email</th>
+                <th><a href="{{ route('clients.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) }}">ID ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) }}">Имя ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['email', $direction == 'asc' && $field == 'email' ? 'desc' : 'asc']) }}">Email ↕</a></th>
                 <th>Телефон</th>
                 <th>Адрес</th>
                 <th>Сделок</th>
-                <th>Сумма сделок</th>
+                <th><a href="{{ route('clients.sort', ['deals_sum_amount', $direction == 'asc' && $field == 'deals_sum_amount' ? 'desc' : 'asc']) }}">Сумма сделок ↕</a></th>
+                <th><a href="{{ route('clients.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) }}">Дата создания ↕</a></th>
                 <th>Действия</th>
             </tr>
         </thead>
@@ -41,6 +51,7 @@
                 <td>{{ $client->address ?? '—' }}</td>
                 <td>{{ $client->deals_count }}</td>
                 <td>{{ number_format($client->deals_sum_amount ?? 0, 2) }} ₽</td>
+                <td>{{ $client->created_at }}</td>
                 <td>
                     <a href="{{ route('clients.show', $client) }}">Просмотр</a>
                     <a href="{{ route('clients.edit', $client) }}">Редактировать</a>
