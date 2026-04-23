@@ -72,3 +72,5 @@ Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->n
 // Сделки — один маршрут (всё в index)
 Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
 Route::resource('deals', DealController::class)->except(['index']);
+
+Route::get('/reports/months', [DealController::class, 'monthlyReport'])->name('reports.months');

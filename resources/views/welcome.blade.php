@@ -71,6 +71,7 @@
     <p>
         <a href="{{ route('clients.index') }}">Клиенты</a> |
         <a href="{{ route('deals.index') }}">Сделки</a>
+        <a href="{{ route('reports.months') }}">📊 Отчёт по месяцам</a>
     </p>
 </body>
 </html>

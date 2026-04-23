@@ -125,4 +125,20 @@ class DealController extends Controller
         $deal->delete();
         return redirect()->route('deals.index')->with('success', 'Сделка удалена');
     }
+
+    public function monthlyReport()
+    {
+        // Группируем сделки по месяцам (последние 12 месяцев)
+        $reports = Deal::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month')
+            ->selectRaw('count(*) as total_count')
+            ->selectRaw('sum(amount) as total_amount')
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+        
+        $maxCount = $reports->max('total_count') ?: 1;
+        
+        return view('reports.months', compact('reports', 'maxCount'));
+    }
 }

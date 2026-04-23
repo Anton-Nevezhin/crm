@@ -93,7 +93,53 @@
         </tbody>
     </table>
     <div>
-        {{ $deals->links() }}
+        @if ($deals->hasPages())
+            <div>
+                <!-- Назад -->
+                @if ($deals->onFirstPage())
+                    <span>[← Назад]</span>
+                @else
+                    <a href="{{ $deals->previousPageUrl() }}">[← Назад]</a>
+                @endif
+                
+                <!-- Цифры -->
+                @php
+                    $currentPage = $deals->currentPage();
+                    $lastPage = $deals->lastPage();
+                    $start = max(1, $currentPage - 2);
+                    $end = min($lastPage, $currentPage + 2);
+                @endphp
+                
+                @if ($start > 1)
+                    <a href="{{ $deals->url(1) }}">[1]</a>
+                    @if ($start > 2)
+                        <span>...</span>
+                    @endif
+                @endif
+                
+                @for ($i = $start; $i <= $end; $i++)
+                    @if ($i == $currentPage)
+                        <span><strong>[{{ $i }}]</strong></span>
+                    @else
+                        <a href="{{ $deals->url($i) }}">[{{ $i }}]</a>
+                    @endif
+                @endfor
+                
+                @if ($end < $lastPage)
+                    @if ($end < $lastPage - 1)
+                        <span>...</span>
+                    @endif
+                    <a href="{{ $deals->url($lastPage) }}">[{{ $lastPage }}]</a>
+                @endif
+                
+                <!-- Вперёд -->
+                @if ($deals->hasMorePages())
+                    <a href="{{ $deals->nextPageUrl() }}">[Вперёд →]</a>
+                @else
+                    <span>[Вперёд →]</span>
+                @endif
+            </div>
+        @endif
     </div>
 </body>
 </html>
