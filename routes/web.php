@@ -30,9 +30,34 @@ Route::get('/', function () {
     $clientsWithoutDeals = Client::doesntHave('deals')->count();
     $totalDealsSum = Client::withSum('deals', 'amount')->get()->sum('deals_sum_amount');
     
+    // График: сделки по дням (последние 7 дней)
+    $endDate = now();
+    $startDate = now()->subDays(6);
+    
+    $dealsByDay = [];
+    $currentDate = clone $startDate;
+    
+    while ($currentDate <= $endDate) {
+        $dateStr = $currentDate->format('Y-m-d');
+        $count = Deal::whereDate('created_at', $dateStr)->count();
+        $dealsByDay[$dateStr] = $count;
+        $currentDate->addDay();
+    }
+    
+    $maxCount = max($dealsByDay);
+
+    // Топ-5 клиентов по сумме сделок
+    $topClients = Client::withCount('deals')
+    ->withSum('deals', 'amount')
+    ->having('deals_sum_amount', '>', 0)
+    ->orderBy('deals_sum_amount', 'desc')
+    ->limit(5)
+    ->get();
+
     return view('welcome', compact(
         'totalDeals', 'totalAmount', 'statusCounts',
-        'totalClients', 'clientsWithDeals', 'clientsWithoutDeals', 'totalDealsSum'
+        'totalClients', 'clientsWithDeals', 'clientsWithoutDeals', 'totalDealsSum',
+        'dealsByDay', 'maxCount', 'topClients'
     ));
 });
 

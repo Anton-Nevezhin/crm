@@ -22,6 +22,13 @@
         <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
         <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
         
+        <select name="per_page">
+            <option value="10" {{ request()->get('per_page') == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request()->get('per_page') == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request()->get('per_page') == 50 ? 'selected' : '' }}>50</option>
+            <option value="100" {{ request()->get('per_page') == 100 ? 'selected' : '' }}>100</option>
+        </select>
+        
         <button type="submit">Найти</button>
         <a href="{{ route('clients.index') }}">Сбросить</a>
         

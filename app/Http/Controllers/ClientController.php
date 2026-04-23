@@ -14,12 +14,19 @@ class ClientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->get('per_page', 10);
+        $allowedPerPage = [10, 25, 50, 100];
+        
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 10;
+        }
+        
         $clients = Client::withCount('deals')
             ->withSum('deals', 'amount')
             ->orderBy('id', 'asc')
-            ->paginate(10);
+            ->paginate($perPage);
         
         $field = 'id';
         $direction = 'asc';
@@ -100,9 +107,11 @@ class ClientController extends Controller
         $dateTo = $request->get('date_to');
         $sortField = $request->get('sort_field', 'id');
         $sortDir = $request->get('sort_dir', 'asc');
+        $perPage = $request->get('per_page', 10);
         
         $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
         $allowedDirs = ['asc', 'desc'];
+        $allowedPerPage = [10, 25, 50, 100];
         
         if (!in_array($sortField, $allowedFields)) {
             $sortField = 'id';
@@ -110,6 +119,10 @@ class ClientController extends Controller
         
         if (!in_array($sortDir, $allowedDirs)) {
             $sortDir = 'asc';
+        }
+        
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 10;
         }
         
         $query = Client::withCount('deals')->withSum('deals', 'amount');
@@ -130,7 +143,7 @@ class ClientController extends Controller
             $query->whereDate('created_at', '<=', $dateTo);
         }
         
-        $clients = $query->orderBy($sortField, $sortDir)->paginate(10);
+        $clients = $query->orderBy($sortField, $sortDir)->paginate($perPage);
         
         $field = $sortField;
         $direction = $sortDir;
@@ -142,6 +155,9 @@ class ClientController extends Controller
     {
         $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
         $allowedDirections = ['asc', 'desc'];
+
+        $perPage = request()->get('per_page', 10);
+        $allowedPerPage = [10, 25, 50, 100];
         
         if (!in_array($field, $allowedFields)) {
             $field = 'id';
@@ -149,6 +165,10 @@ class ClientController extends Controller
         
         if (!in_array($direction, $allowedDirections)) {
             $direction = 'asc';
+        }
+
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 10;
         }
         
         // Получаем параметры фильтра из запроса
@@ -172,7 +192,7 @@ class ClientController extends Controller
             $query->whereDate('created_at', '<=', $dateTo);
         }
         
-        $clients = $query->orderBy($field, $direction)->paginate(10);
+        $clients = $query->orderBy($field, $direction)->paginate($perPage);
         
         return view('clients.index', compact('clients', 'field', 'direction'));
     }

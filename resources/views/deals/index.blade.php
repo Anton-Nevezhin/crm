@@ -17,6 +17,13 @@
     <form method="GET" action="{{ route('deals.index') }}" style="margin-bottom: 20px;">
         <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}">
         
+        <select name="per_page">
+            <option value="10" {{ request()->get('per_page') == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request()->get('per_page') == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request()->get('per_page') == 50 ? 'selected' : '' }}>50</option>
+            <option value="100" {{ request()->get('per_page') == 100 ? 'selected' : '' }}>100</option>
+        </select>
+
         <select name="status">
             <option value="all">Все статусы</option>
             <option value="new" {{ request()->get('status') == 'new' ? 'selected' : '' }}>🆕 Новые</option>
@@ -27,6 +34,9 @@
         
         <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
         <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
+        
+        <input type="number" name="amount_from" placeholder="Сумма от" value="{{ request()->get('amount_from') }}">
+        <input type="number" name="amount_to" placeholder="Сумма до" value="{{ request()->get('amount_to') }}">
         
         <input type="hidden" name="sort_field" value="{{ request()->get('sort_field', 'id') }}">
         <input type="hidden" name="sort_dir" value="{{ request()->get('sort_dir', 'asc') }}">
