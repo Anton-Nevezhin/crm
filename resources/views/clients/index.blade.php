@@ -7,6 +7,16 @@
 <body>
     <h1>Список клиентов</h1>
 
+    @if($errors->any())
+        <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if(session('success'))
         <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
             {{ session('success') }}
@@ -17,18 +27,21 @@
     <a href="{{ route('clients.export.csv') }}" style="margin-left: 15px;">📥 Экспорт в CSV</a>
 
     <form method="GET" action="{{ route('clients.search') }}" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Поиск по имени, email или телефону..." value="{{ request()->get('search') }}" style="padding: 5px; width: 300px;">
+        <input type="text" name="search" placeholder="Поиск по имени, email или телефону..." value="{{ old('search', request()->get('search')) }}" style="padding: 5px; width: 300px;">
         
-        <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
-        <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
+        <input type="date" name="date_from" value="{{ old('date_from', request()->get('date_from')) }}" placeholder="Дата от">
+        <input type="date" name="date_to" value="{{ old('date_to', request()->get('date_to')) }}" placeholder="Дата до">
         
         <select name="per_page">
-            <option value="10" {{ request()->get('per_page') == 10 ? 'selected' : '' }}>10</option>
-            <option value="25" {{ request()->get('per_page') == 25 ? 'selected' : '' }}>25</option>
-            <option value="50" {{ request()->get('per_page') == 50 ? 'selected' : '' }}>50</option>
-            <option value="100" {{ request()->get('per_page') == 100 ? 'selected' : '' }}>100</option>
+            <option value="10" {{ (old('per_page', request()->get('per_page')) == 10) ? 'selected' : '' }}>10</option>
+            <option value="25" {{ (old('per_page', request()->get('per_page')) == 25) ? 'selected' : '' }}>25</option>
+            <option value="50" {{ (old('per_page', request()->get('per_page')) == 50) ? 'selected' : '' }}>50</option>
+            <option value="100" {{ (old('per_page', request()->get('per_page')) == 100) ? 'selected' : '' }}>100</option>
         </select>
         
+        <input type="number" name="deals_sum_from" placeholder="Сумма сделок от" value="{{ old('deals_sum_from', request()->get('deals_sum_from')) }}">
+        <input type="number" name="deals_sum_to" placeholder="Сумма сделок до" value="{{ old('deals_sum_to', request()->get('deals_sum_to')) }}">
+
         <button type="submit">Найти</button>
         <a href="{{ route('clients.index') }}">Сбросить</a>
         

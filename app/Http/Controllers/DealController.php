@@ -34,6 +34,16 @@ class DealController extends Controller
         if (!in_array($sortDir, $allowedDirs)) {
             $sortDir = 'asc';
         }
+
+        // Валидация дат
+        if ($dateFrom && $dateTo && $dateFrom > $dateTo) {
+            return back()->withErrors(['date_range' => 'Дата «от» не может быть позже даты «до»'])->withInput();
+        }
+
+        // Валидация суммы
+        if ($amountFrom && $amountTo && $amountFrom > $amountTo) {
+            return back()->withErrors(['sum_range' => 'Сумма «от» не может быть больше суммы «до»'])->withInput();
+        }
         
         // Валидация количества записей на странице
         if (!in_array($perPage, $allowedPerPage)) {

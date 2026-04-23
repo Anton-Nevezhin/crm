@@ -108,10 +108,26 @@ class ClientController extends Controller
         $sortField = $request->get('sort_field', 'id');
         $sortDir = $request->get('sort_dir', 'asc');
         $perPage = $request->get('per_page', 10);
+        $dealsSumFrom = $request->get('deals_sum_from');
+        $dealsSumTo = $request->get('deals_sum_to');
+        $dealsSumFrom = request()->get('deals_sum_from');
+        $dealsSumTo = request()->get('deals_sum_to');
         
         $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
         $allowedDirs = ['asc', 'desc'];
         $allowedPerPage = [10, 25, 50, 100];
+
+        // Валидация дат
+        if ($dateFrom && $dateTo && $dateFrom > $dateTo) {
+            return back()->withErrors(['date_range' => 'Дата «от» не может быть позже даты «до»'])->withInput();
+        }
+
+        // Валидация суммы
+        if ($dealsSumFrom && $dealsSumTo && $dealsSumFrom > $dealsSumTo) {
+            return back()->withErrors(['sum_range' => 'Сумма «от» не может быть больше суммы «до»'])->withInput();
+        }
+
+        $query = Client::withCount('deals')->withSum('deals', 'amount');
         
         if (!in_array($sortField, $allowedFields)) {
             $sortField = 'id';
@@ -120,12 +136,18 @@ class ClientController extends Controller
         if (!in_array($sortDir, $allowedDirs)) {
             $sortDir = 'asc';
         }
+
+        if ($dealsSumFrom) {
+            $query->having('deals_sum_amount', '>=', $dealsSumFrom);
+        }
+        
+        if ($dealsSumTo) {
+            $query->having('deals_sum_amount', '<=', $dealsSumTo);
+        }
         
         if (!in_array($perPage, $allowedPerPage)) {
             $perPage = 10;
         }
-        
-        $query = Client::withCount('deals')->withSum('deals', 'amount');
         
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -158,6 +180,8 @@ class ClientController extends Controller
 
         $perPage = request()->get('per_page', 10);
         $allowedPerPage = [10, 25, 50, 100];
+
+        $query = Client::withCount('deals')->withSum('deals', 'amount');
         
         if (!in_array($field, $allowedFields)) {
             $field = 'id';
@@ -170,14 +194,20 @@ class ClientController extends Controller
         if (!in_array($perPage, $allowedPerPage)) {
             $perPage = 10;
         }
+
+        if ($dealsSumFrom) {
+            $query->having('deals_sum_amount', '>=', $dealsSumFrom);
+        }
+        
+        if ($dealsSumTo) {
+            $query->having('deals_sum_amount', '<=', $dealsSumTo);
+        }
         
         // Получаем параметры фильтра из запроса
         $search = request()->get('search');
         $dateFrom = request()->get('date_from');
         $dateTo = request()->get('date_to');
-        
-        $query = Client::withCount('deals')->withSum('deals', 'amount');
-        
+              
         if ($search) {
             $query->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")

@@ -8,6 +8,16 @@
 <body>
     <h1>Список сделок</h1>
 
+    @if($errors->any())
+        <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if(session('success'))
         <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
             {{ session('success') }}
@@ -15,28 +25,28 @@
     @endif
 
     <form method="GET" action="{{ route('deals.index') }}" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}">
-        
+        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ old('search', request()->get('search')) }}">
+
         <select name="per_page">
-            <option value="10" {{ request()->get('per_page') == 10 ? 'selected' : '' }}>10</option>
-            <option value="25" {{ request()->get('per_page') == 25 ? 'selected' : '' }}>25</option>
-            <option value="50" {{ request()->get('per_page') == 50 ? 'selected' : '' }}>50</option>
-            <option value="100" {{ request()->get('per_page') == 100 ? 'selected' : '' }}>100</option>
+            <option value="10" {{ old('per_page', request()->get('per_page')) == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ old('per_page', request()->get('per_page')) == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ old('per_page', request()->get('per_page')) == 50 ? 'selected' : '' }}>50</option>
+            <option value="100" {{ old('per_page', request()->get('per_page')) == 100 ? 'selected' : '' }}>100</option>
+        </select>
+        
+        <select name="status">
+            <option value="all" {{ (old('status', request()->get('status')) == 'all') ? 'selected' : '' }}>Все статусы</option>
+            <option value="new" {{ (old('status', request()->get('status')) == 'new') ? 'selected' : '' }}>🆕 Новые</option>
+            <option value="in_progress" {{ (old('status', request()->get('status')) == 'in_progress') ? 'selected' : '' }}>⏳ В работе</option>
+            <option value="closed" {{ (old('status', request()->get('status')) == 'closed') ? 'selected' : '' }}>✅ Закрытые</option>
+            <option value="lost" {{ (old('status', request()->get('status')) == 'lost') ? 'selected' : '' }}>❌ Потерянные</option>
         </select>
 
-        <select name="status">
-            <option value="all">Все статусы</option>
-            <option value="new" {{ request()->get('status') == 'new' ? 'selected' : '' }}>🆕 Новые</option>
-            <option value="in_progress" {{ request()->get('status') == 'in_progress' ? 'selected' : '' }}>⏳ В работе</option>
-            <option value="closed" {{ request()->get('status') == 'closed' ? 'selected' : '' }}>✅ Закрытые</option>
-            <option value="lost" {{ request()->get('status') == 'lost' ? 'selected' : '' }}>❌ Потерянные</option>
-        </select>
-        
-        <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
-        <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
-        
-        <input type="number" name="amount_from" placeholder="Сумма от" value="{{ request()->get('amount_from') }}">
-        <input type="number" name="amount_to" placeholder="Сумма до" value="{{ request()->get('amount_to') }}">
+        <input type="date" name="date_from" value="{{ old('date_from', request()->get('date_from')) }}" placeholder="Дата от">
+        <input type="date" name="date_to" value="{{ old('date_to', request()->get('date_to')) }}" placeholder="Дата до">
+
+        <input type="number" name="amount_from" placeholder="Сумма от" value="{{ old('amount_from', request()->get('amount_from')) }}">
+        <input type="number" name="amount_to" placeholder="Сумма до" value="{{ old('amount_to', request()->get('amount_to')) }}">
         
         <input type="hidden" name="sort_field" value="{{ request()->get('sort_field', 'id') }}">
         <input type="hidden" name="sort_dir" value="{{ request()->get('sort_dir', 'asc') }}">
