@@ -62,6 +62,7 @@
                 <th>Сделок</th>
                 <th><a href="{{ route('clients.sort', ['deals_sum_amount', $direction == 'asc' && $field == 'deals_sum_amount' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Сумма сделок ↕</a></th>
                 <th><a href="{{ route('clients.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Дата создания ↕</a></th>
+                <th>Контакты</th>
                 <th>Действия</th>
             </tr>
         </thead>
@@ -76,6 +77,7 @@
                 <td>{{ $client->deals_count }}</td>
                 <td>{{ number_format($client->deals_sum_amount ?? 0, 2) }} ₽</td>
                 <td>{{ $client->created_at }}</td>
+                <td>{{ $client->contacts_count }}</td>
                 <td>
                     <a href="{{ route('clients.show', $client) }}">Просмотр</a>
                     <a href="{{ route('clients.edit', $client) }}">Редактировать</a>

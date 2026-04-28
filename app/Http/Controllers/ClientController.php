@@ -24,6 +24,7 @@ class ClientController extends Controller
         }
         
         $clients = Client::withCount('deals')
+            ->withCount('contacts')
             ->withSum('deals', 'amount')
             ->orderBy('id', 'asc')
             ->paginate($perPage);
@@ -127,7 +128,7 @@ class ClientController extends Controller
             return back()->withErrors(['sum_range' => 'Сумма «от» не может быть больше суммы «до»'])->withInput();
         }
 
-        $query = Client::withCount('deals')->withSum('deals', 'amount');
+        $query = Client::withCount('deals')->withCount('contacts')->withSum('deals', 'amount');
         
         if (!in_array($sortField, $allowedFields)) {
             $sortField = 'id';
@@ -175,13 +176,16 @@ class ClientController extends Controller
     
     public function sort($field, $direction)
     {
+        $dealsSumFrom = request()->get('deals_sum_from');
+        $dealsSumTo = request()->get('deals_sum_to');
+
         $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
         $allowedDirections = ['asc', 'desc'];
 
         $perPage = request()->get('per_page', 10);
         $allowedPerPage = [10, 25, 50, 100];
 
-        $query = Client::withCount('deals')->withSum('deals', 'amount');
+        $query = Client::withCount('deals')->withCount('contacts')->withSum('deals', 'amount');
         
         if (!in_array($field, $allowedFields)) {
             $field = 'id';

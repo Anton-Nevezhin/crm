@@ -7,6 +7,21 @@
 <body>
     <h1>Список контактов</h1>
 
+    <form method="GET" action="{{ route('contacts.index') }}" style="margin-bottom: 20px;">
+        <select name="type">
+            <option value="">Все типы</option>
+            <option value="call" {{ request()->get('type') == 'call' ? 'selected' : '' }}>📞 Звонок</option>
+            <option value="meeting" {{ request()->get('type') == 'meeting' ? 'selected' : '' }}>🤝 Встреча</option>
+            <option value="email" {{ request()->get('type') == 'email' ? 'selected' : '' }}>📧 Письмо</option>
+        </select>
+
+        <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
+        <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
+
+        <button type="submit">Применить</button>
+        <a href="{{ route('contacts.index') }}">Сбросить</a>
+    </form>
+
     @if(session('success'))
         <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
             {{ session('success') }}

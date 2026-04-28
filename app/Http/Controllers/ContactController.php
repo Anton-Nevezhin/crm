@@ -8,9 +8,28 @@ use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $contacts = Contact::with('client')->orderBy('contact_date', 'desc')->paginate(10);
+        $type = $request->get('type');
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
+    
+        $query = Contact::with('client');
+    
+        if ($type) {
+            $query->where('type', $type);
+        }
+    
+        if ($dateFrom) {
+            $query->whereDate('contact_date', '>=', $dateFrom);
+        }
+    
+        if ($dateTo) {
+            $query->whereDate('contact_date', '<=', $dateTo);
+        }
+    
+        $contacts = $query->orderBy('contact_date', 'desc')->paginate(10);
+    
         return view('contacts.index', compact('contacts'));
     }
 
