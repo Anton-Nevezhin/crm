@@ -50,6 +50,48 @@
     @endif
 
     <a href="{{ route('deals.create', ['client_id' => $client->id]) }}">+ Добавить сделку</a>
+
+    <h2>Контакты клиента</h2>
+
+    @if($client->contacts->count() > 0)
+        <table border="1" cellpadding="10">
+            <thead>
+                <tr>
+                    <th>Тип</th>
+                    <th>Дата</th>
+                    <th>Комментарий</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($client->contacts as $contact)
+                <tr>
+                    <td>
+                        @if($contact->type == 'call') 📞 Звонок
+                        @elseif($contact->type == 'meeting') 🤝 Встреча
+                        @else 📧 Письмо
+                        @endif
+                    </td>
+                    <td>{{ $contact->contact_date }}</td>
+                    <td>{{ $contact->comment ?? '—' }}</td>
+                    <td>
+                        <a href="{{ route('contacts.show', $contact) }}">Просмотр</a>
+                        <a href="{{ route('contacts.edit', $contact) }}">Редактировать</a>
+                        <form method="POST" action="{{ route('contacts.destroy', $contact) }}" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Точно удалить?')">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <p>Нет контактов</p>
+    @endif
+
+    <a href="{{ route('contacts.create', ['client_id' => $client->id]) }}">+ Добавить контакт</a>
     
     <a href="{{ route('clients.index') }}">Назад к списку</a>
     <a href="{{ route('clients.edit', $client) }}">Редактировать</a>

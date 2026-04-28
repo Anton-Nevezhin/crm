@@ -5,6 +5,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DealController;
 use App\Models\Deal;
 use App\Models\Client;
+use App\Http\Controllers\ContactController;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +69,7 @@ Route::get('/clients/search', [ClientController::class, 'search'])->name('client
 Route::resource('clients', ClientController::class)->except(['index']);
 Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
 Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');
+Route::resource('contacts', ContactController::class);
 
 // Сделки — один маршрут (всё в index)
 Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
