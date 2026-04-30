@@ -68,10 +68,80 @@
         </tbody>
     </table>
 
+    <h2>Воронка продаж</h2>
+
+@php
+    $total = $totalDeals;
+    $statusNames = [
+        'new' => '🆕 Новые',
+        'in_progress' => '⏳ В работе',
+        'closed' => '✅ Закрытые',
+        'lost' => '❌ Потерянные',
+    ];
+@endphp
+
+    <table border="1" cellpadding="10" style="width: 100%; margin-top: 20px;">
+        <thead>
+            <tr>
+                <th>Статус</th>
+                <th>Количество</th>
+                <th>Процент</th>
+                <th>Визуализация</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($statusCounts as $status => $count)
+            <tr>
+                <td>{{ $statusNames[$status] }}</td>
+                <td>{{ $count }}</td>
+                <td>{{ $total > 0 ? round(($count / $total) * 100, 1) : 0 }}%</td>
+                <td>
+                    <div style="width: 100%; background-color: #f0f0f0; border-radius: 5px;">
+                        <div style="width: {{ $total > 0 ? ($count / $total) * 100 : 0 }}%; background-color: 
+                            @if($status == 'new') #4CAF50
+                            @elseif($status == 'in_progress') #FFC107
+                            @elseif($status == 'closed') #2196F3
+                            @else #f44336
+                            @endif; 
+                            height: 20px; border-radius: 5px;">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <p><strong>Всего сделок:</strong> {{ $total }}</p>
+
+    <h2>Статистика по сотрудникам</h2>
+
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Сотрудник</th>
+                <th>Сделок</th>
+                <th>Сумма сделок</th>
+                <th>Контактов</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($managers as $manager)
+            <tr>
+                <td>{{ $manager['name'] }}</td>
+                <td>{{ $manager['deals_count'] }}</td>
+                <td>{{ number_format($manager['deals_sum'], 2) }} ₽</td>
+                <td>{{ $manager['contacts_count'] }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
     <p>
         <a href="{{ route('clients.index') }}">Клиенты</a> |
         <a href="{{ route('deals.index') }}">Сделки</a>
         <a href="{{ route('reports.months') }}">📊 Отчёт по месяцам</a>
+        <a href="{{ route('admin.index') }}">⚙️ Админка</a>
     </p>
 </body>
 </html>

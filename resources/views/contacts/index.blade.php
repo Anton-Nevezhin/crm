@@ -18,6 +18,15 @@
         <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
         <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
 
+        <select name="client_id">
+            <option value="">Все клиенты</option>
+            @foreach($clients as $client)
+                <option value="{{ $client->id }}" {{ request()->get('client_id') == $client->id ? 'selected' : '' }}>
+                    {{ $client->name }}
+                </option>
+            @endforeach
+        </select>
+
         <button type="submit">Применить</button>
         <a href="{{ route('contacts.index') }}">Сбросить</a>
     </form>
@@ -30,6 +39,7 @@
 
     <a href="{{ route('contacts.create') }}">Добавить контакт</a>
     <a href="{{ route('clients.index') }}">Назад к клиентам</a>
+    <a href="{{ route('contacts.export.csv') }}">📥 Экспорт в CSV</a>
 
     <table border="1" cellpadding="10">
         <thead>

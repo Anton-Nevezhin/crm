@@ -6,6 +6,7 @@ use App\Http\Controllers\DealController;
 use App\Models\Deal;
 use App\Models\Client;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,10 +56,17 @@ Route::get('/', function () {
     ->limit(5)
     ->get();
 
+    // Сводка по сотрудникам (заглушка, потом будет привязано к пользователям)
+    $managers = [
+        ['name' => 'Менеджер 1', 'deals_count' => 12, 'deals_sum' => 1250000, 'contacts_count' => 34],
+        ['name' => 'Менеджер 2', 'deals_count' => 8, 'deals_sum' => 870000, 'contacts_count' => 21],
+        ['name' => 'Менеджер 3', 'deals_count' => 15, 'deals_sum' => 2100000, 'contacts_count' => 42],
+    ];
+
     return view('welcome', compact(
         'totalDeals', 'totalAmount', 'statusCounts',
         'totalClients', 'clientsWithDeals', 'clientsWithoutDeals', 'totalDealsSum',
-        'dealsByDay', 'maxCount', 'topClients'
+        'dealsByDay', 'maxCount', 'topClients', 'managers'
     ));
 });
 
@@ -70,9 +78,12 @@ Route::resource('clients', ClientController::class)->except(['index']);
 Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
 Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');
 Route::resource('contacts', ContactController::class);
+Route::get('/contacts/export/csv', [ContactController::class, 'exportCsv'])->name('contacts.export.csv');
 
 // Сделки — один маршрут (всё в index)
 Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
 Route::resource('deals', DealController::class)->except(['index']);
 
 Route::get('/reports/months', [DealController::class, 'monthlyReport'])->name('reports.months');
+
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');

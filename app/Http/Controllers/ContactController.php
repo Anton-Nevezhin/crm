@@ -13,7 +13,14 @@ class ContactController extends Controller
         $type = $request->get('type');
         $dateFrom = $request->get('date_from');
         $dateTo = $request->get('date_to');
+        $clientId = $request->get('client_id');
+
+        if ($clientId) {
+            $query->where('client_id', $clientId);
+        }
     
+        $clients = Client::orderBy('name')->get();
+
         $query = Contact::with('client');
     
         if ($type) {
@@ -30,7 +37,7 @@ class ContactController extends Controller
     
         $contacts = $query->orderBy('contact_date', 'desc')->paginate(10);
     
-        return view('contacts.index', compact('contacts'));
+        return view('contacts.index', compact('contacts', 'clients'));
     }
 
     public function create(Request $request)
@@ -81,5 +88,48 @@ class ContactController extends Controller
     {
         $contact->delete();
         return redirect()->route('contacts.index')->with('success', 'Контакт удалён');
+    }
+
+    public function exportCsv()
+    {
+        $contacts = Contact::with('client')->get();
+        
+        $filename = 'contacts_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        header('Content-Type: text/csv; charset=windows-1251');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        
+        $handle = fopen('php://output', 'w');
+        
+        // Заголовки (перекодируем в windows-1251)
+        $headers = ['ID', 'Клиент', 'Тип', 'Дата контакта', 'Комментарий', 'Создан', 'Обновлён'];
+        foreach ($headers as &$header) {
+            $header = iconv('UTF-8', 'windows-1251//IGNORE', $header);
+        }
+        fputcsv($handle, $headers, ';'); // разделитель точка с запятой
+        
+        // Данные
+        foreach ($contacts as $contact) {
+            $typeText = match($contact->type) {
+                'call' => 'Звонок',
+                'meeting' => 'Встреча',
+                'email' => 'Письмо',
+                default => $contact->type,
+            };
+            
+            $row = [
+                $contact->id,
+                iconv('UTF-8', 'windows-1251//IGNORE', $contact->client->name),
+                iconv('UTF-8', 'windows-1251//IGNORE', $typeText),
+                $contact->contact_date,
+                iconv('UTF-8', 'windows-1251//IGNORE', $contact->comment ?? ''),
+                $contact->created_at,
+                $contact->updated_at,
+            ];
+            fputcsv($handle, $row, ';');
+        }
+        
+        fclose($handle);
+        exit;
     }
 }
