@@ -53,16 +53,14 @@
                 <th>Клиент</th>
                 <th>Сумма сделок</th>
                 <th>Количество сделок</th>
-                <th>Действия</th>
             </tr>
         </thead>
         <tbody>
             @foreach($topClients as $client)
             <tr>
-                <td><a href="{{ route('clients.show', $client) }}">{{ $client->name }}</a></td>
+                <td>{{ $client->name }}</td>
                 <td>{{ number_format($client->deals_sum_amount, 2) }} ₽</td>
                 <td>{{ $client->deals_count }}</td>
-                <td><a href="{{ route('clients.show', $client) }}">Просмотр</a></td>
             </tr>
             @endforeach
         </tbody>
@@ -113,29 +111,6 @@
     </table>
 
     <p><strong>Всего сделок:</strong> {{ $total }}</p>
-
-    <h2>Статистика по сотрудникам</h2>
-
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th>Сотрудник</th>
-                <th>Сделок</th>
-                <th>Сумма сделок</th>
-                <th>Контактов</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($managers as $manager)
-            <tr>
-                <td>{{ $manager['name'] }}</td>
-                <td>{{ $manager['deals_count'] }}</td>
-                <td>{{ number_format($manager['deals_sum'], 2) }} ₽</td>
-                <td>{{ $manager['contacts_count'] }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
 
     <p>
         <a href="{{ route('clients.index') }}">Клиенты</a> |

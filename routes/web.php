@@ -3,17 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DealController;
-use App\Models\Deal;
-use App\Models\Client;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\AdminController;
+use App\Models\Client;
+use App\Models\Deal;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
+// Главная страница (без аутентификации)
 Route::get('/', function () {
     // Статистика по сделкам
     $totalDeals = Deal::count();
@@ -47,43 +42,38 @@ Route::get('/', function () {
     }
     
     $maxCount = max($dealsByDay);
-
+    
     // Топ-5 клиентов по сумме сделок
     $topClients = Client::withCount('deals')
-    ->withSum('deals', 'amount')
-    ->having('deals_sum_amount', '>', 0)
-    ->orderBy('deals_sum_amount', 'desc')
-    ->limit(5)
-    ->get();
-
-    // Сводка по сотрудникам (заглушка, потом будет привязано к пользователям)
-    $managers = [
-        ['name' => 'Менеджер 1', 'deals_count' => 12, 'deals_sum' => 1250000, 'contacts_count' => 34],
-        ['name' => 'Менеджер 2', 'deals_count' => 8, 'deals_sum' => 870000, 'contacts_count' => 21],
-        ['name' => 'Менеджер 3', 'deals_count' => 15, 'deals_sum' => 2100000, 'contacts_count' => 42],
-    ];
-
+        ->withSum('deals', 'amount')
+        ->having('deals_sum_amount', '>', 0)
+        ->orderBy('deals_sum_amount', 'desc')
+        ->limit(5)
+        ->get();
+    
     return view('welcome', compact(
         'totalDeals', 'totalAmount', 'statusCounts',
         'totalClients', 'clientsWithDeals', 'clientsWithoutDeals', 'totalDealsSum',
-        'dealsByDay', 'maxCount', 'topClients', 'managers'
+        'dealsByDay', 'maxCount', 'topClients'
     ));
 });
 
-// Клиенты
-Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
-Route::get('/clients/sort/{field}/{direction}', [ClientController::class, 'sort'])->name('clients.sort');
-Route::get('/clients/search', [ClientController::class, 'search'])->name('clients.search');
-Route::resource('clients', ClientController::class)->except(['index']);
-Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
-Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');
-Route::resource('contacts', ContactController::class);
-Route::get('/contacts/export/csv', [ContactController::class, 'exportCsv'])->name('contacts.export.csv');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
 
-// Сделки — один маршрут (всё в index)
-Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
-Route::resource('deals', DealController::class)->except(['index']);
+// Маршруты для аутентификации (Breeze)
+require __DIR__.'/auth.php';
 
-Route::get('/reports/months', [DealController::class, 'monthlyReport'])->name('reports.months');
-
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+// Защищённые маршруты (только после входа)
+Route::middleware('auth')->group(function () {
+    Route::resource('clients', ClientController::class);
+    Route::resource('deals', DealController::class);
+    Route::resource('contacts', ContactController::class);
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/reports/months', [DealController::class, 'monthlyReport'])->name('reports.months');
+    Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');
+    Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
+    Route::get('/clients/search', [ClientController::class, 'search'])->name('clients.search');
+    Route::get('/clients/sort/{field}/{direction}', [ClientController::class, 'sort'])->name('clients.sort');
+});
