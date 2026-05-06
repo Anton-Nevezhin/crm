@@ -92,52 +92,55 @@
         </tbody>
     </table>
     <div>
+
+    @php
+        $queryParams = http_build_query([
+            'per_page' => request()->get('per_page', 10),
+            'search' => request()->get('search'),
+            'date_from' => request()->get('date_from'),
+            'date_to' => request()->get('date_to'),
+            'deals_sum_from' => request()->get('deals_sum_from'),
+            'deals_sum_to' => request()->get('deals_sum_to'),
+        ]);
+    @endphp
+
         @if ($clients->hasPages())
-            <div>
-                <!-- Назад -->
-                @if ($clients->onFirstPage())
-                    <span>[← Назад]</span>
+            @if ($clients->onFirstPage())
+                <span>[← Назад]</span>
+            @else
+                <a href="{{ $clients->previousPageUrl() }}&{{ $queryParams }}">[← Назад]</a>
+            @endif
+            
+            @php
+                $currentPage = $clients->currentPage();
+                $lastPage = $clients->lastPage();
+                $start = max(1, $currentPage - 2);
+                $end = min($lastPage, $currentPage + 2);
+            @endphp
+            
+            @if ($start > 1)
+                <a href="{{ $clients->url(1) }}&{{ $queryParams }}">[1]</a>
+                @if ($start > 2) <span>...</span> @endif
+            @endif
+            
+            @for ($i = $start; $i <= $end; $i++)
+                @if ($i == $currentPage)
+                    <span><strong>[{{ $i }}]</strong></span>
                 @else
-                    <a href="{{ $clients->previousPageUrl() }}">[← Назад]</a>
+                    <a href="{{ $clients->url($i) }}&{{ $queryParams }}">[{{ $i }}]</a>
                 @endif
-                
-                <!-- Цифры -->
-                @php
-                    $currentPage = $clients->currentPage();
-                    $lastPage = $clients->lastPage();
-                    $start = max(1, $currentPage - 2);
-                    $end = min($lastPage, $currentPage + 2);
-                @endphp
-                
-                @if ($start > 1)
-                    <a href="{{ $clients->url(1) }}">[1]</a>
-                    @if ($start > 2)
-                        <span>...</span>
-                    @endif
-                @endif
-                
-                @for ($i = $start; $i <= $end; $i++)
-                    @if ($i == $currentPage)
-                        <span><strong>[{{ $i }}]</strong></span>
-                    @else
-                        <a href="{{ $clients->url($i) }}">[{{ $i }}]</a>
-                    @endif
-                @endfor
-                
-                @if ($end < $lastPage)
-                    @if ($end < $lastPage - 1)
-                        <span>...</span>
-                    @endif
-                    <a href="{{ $clients->url($lastPage) }}">[{{ $lastPage }}]</a>
-                @endif
-                
-                <!-- Вперёд -->
-                @if ($clients->hasMorePages())
-                    <a href="{{ $clients->nextPageUrl() }}">[Вперёд →]</a>
-                @else
-                    <span>[Вперёд →]</span>
-                @endif
-            </div>
+            @endfor
+            
+            @if ($end < $lastPage)
+                @if ($end < $lastPage - 1) <span>...</span> @endif
+                <a href="{{ $clients->url($lastPage) }}&{{ $queryParams }}">[{{ $lastPage }}]</a>
+            @endif
+            
+            @if ($clients->hasMorePages())
+                <a href="{{ $clients->nextPageUrl() }}&{{ $queryParams }}">[Вперёд →]</a>
+            @else
+                <span>[Вперёд →]</span>
+            @endif
         @endif
     </div>
 </body>

@@ -67,13 +67,19 @@ require __DIR__.'/auth.php';
 
 // Защищённые маршруты (только после входа)
 Route::middleware('auth')->group(function () {
-    Route::resource('clients', ClientController::class);
     Route::resource('deals', DealController::class);
     Route::resource('contacts', ContactController::class);
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/reports/months', [DealController::class, 'monthlyReport'])->name('reports.months');
-    Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');
-    Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
+    Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/search', [ClientController::class, 'search'])->name('clients.search');
     Route::get('/clients/sort/{field}/{direction}', [ClientController::class, 'sort'])->name('clients.sort');
+    Route::get('/clients/export/csv', [ClientController::class, 'exportCsv'])->name('clients.export.csv');
+    Route::get('/clients/export/excel', [ClientController::class, 'exportExcel'])->name('clients.export.excel');
+    Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
+    Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.create');
+    Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
+    Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+    Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
+    Route::get('/clients/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
 });

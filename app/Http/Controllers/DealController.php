@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Deal;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use App\Jobs\SendTelegramNotification;
 
 class DealController extends Controller
 {
@@ -103,6 +104,11 @@ class DealController extends Controller
         
         Deal::create($validated);
         return redirect()->route('deals.index')->with('success', 'Сделка создана');
+
+        // ... после успешного создания сделки
+        $chatId = env('TELEGRAM_CHAT_ID');
+        $message = "🆕 *Новая сделка!*\n\n💰 Название: {$deal->name}\n💵 Сумма: {$deal->amount} ₽\n👤 Клиент: " . ($deal->client->name ?? '—');
+        SendTelegramNotification::dispatch($message, $chatId);
     }
 
     public function show(Deal $deal)

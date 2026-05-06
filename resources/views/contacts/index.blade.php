@@ -39,7 +39,6 @@
 
     <a href="{{ route('contacts.create') }}">Добавить контакт</a>
     <a href="{{ route('clients.index') }}">Назад к клиентам</a>
-    <a href="{{ route('contacts.export.csv') }}">📥 Экспорт в CSV</a>
 
     <table border="1" cellpadding="10">
         <thead>
@@ -80,7 +79,51 @@
     </table>
 
     <div>
-        {{ $contacts->links() }}
+        @php
+            $params = request()->except('page');
+            $queryParams = !empty($params) ? '&' . http_build_query($params) : '';
+        @endphp
+
+        @if ($contacts->hasPages())
+            <div>
+                @if ($contacts->onFirstPage())
+                    <span>[← Назад]</span>
+                @else
+                    <a href="{{ $contacts->previousPageUrl() }}{{ $queryParams }}">[← Назад]</a>
+                @endif
+
+                @php
+                    $currentPage = $contacts->currentPage();
+                    $lastPage = $contacts->lastPage();
+                    $start = max(1, $currentPage - 2);
+                    $end = min($lastPage, $currentPage + 2);
+                @endphp
+
+                @if ($start > 1)
+                    <a href="{{ $contacts->url(1) }}{{ $queryParams }}">[1]</a>
+                    @if ($start > 2) <span>...</span> @endif
+                @endif
+
+                @for ($i = $start; $i <= $end; $i++)
+                    @if ($i == $currentPage)
+                        <span><strong>[{{ $i }}]</strong></span>
+                    @else
+                        <a href="{{ $contacts->url($i) }}{{ $queryParams }}">[{{ $i }}]</a>
+                    @endif
+                @endfor
+
+                @if ($end < $lastPage)
+                    @if ($end < $lastPage - 1) <span>...</span> @endif
+                    <a href="{{ $contacts->url($lastPage) }}{{ $queryParams }}">[{{ $lastPage }}]</a>
+                @endif
+
+                @if ($contacts->hasMorePages())
+                    <a href="{{ $contacts->nextPageUrl() }}{{ $queryParams }}">[Вперёд →]</a>
+                @else
+                    <span>[Вперёд →]</span>
+                @endif
+            </div>
+        @endif
     </div>
 </body>
 </html>

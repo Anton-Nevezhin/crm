@@ -103,53 +103,57 @@
         </tbody>
     </table>
     <div>
-        @if ($deals->hasPages())
-            <div>
-                <!-- Назад -->
-                @if ($deals->onFirstPage())
-                    <span>[← Назад]</span>
-                @else
-                    <a href="{{ $deals->previousPageUrl() }}">[← Назад]</a>
-                @endif
-                
-                <!-- Цифры -->
-                @php
-                    $currentPage = $deals->currentPage();
-                    $lastPage = $deals->lastPage();
-                    $start = max(1, $currentPage - 2);
-                    $end = min($lastPage, $currentPage + 2);
-                @endphp
-                
-                @if ($start > 1)
-                    <a href="{{ $deals->url(1) }}">[1]</a>
-                    @if ($start > 2)
-                        <span>...</span>
-                    @endif
-                @endif
-                
-                @for ($i = $start; $i <= $end; $i++)
-                    @if ($i == $currentPage)
-                        <span><strong>[{{ $i }}]</strong></span>
-                    @else
-                        <a href="{{ $deals->url($i) }}">[{{ $i }}]</a>
-                    @endif
-                @endfor
-                
-                @if ($end < $lastPage)
-                    @if ($end < $lastPage - 1)
-                        <span>...</span>
-                    @endif
-                    <a href="{{ $deals->url($lastPage) }}">[{{ $lastPage }}]</a>
-                @endif
-                
-                <!-- Вперёд -->
-                @if ($deals->hasMorePages())
-                    <a href="{{ $deals->nextPageUrl() }}">[Вперёд →]</a>
-                @else
-                    <span>[Вперёд →]</span>
-                @endif
-            </div>
+
+@php
+    $params = http_build_query([
+        'per_page' => request()->get('per_page', 10),
+        'search' => request()->get('search'),
+        'status' => request()->get('status'),
+        'date_from' => request()->get('date_from'),
+        'date_to' => request()->get('date_to'),
+        'amount_from' => request()->get('amount_from'),
+        'amount_to' => request()->get('amount_to'),
+    ]);
+@endphp
+
+@if ($deals->hasPages())
+    @if ($deals->onFirstPage())
+        <span>[← Назад]</span>
+    @else
+        <a href="{{ $deals->previousPageUrl() }}&{{ $params }}">[← Назад]</a>
+    @endif
+    
+    @php
+        $currentPage = $deals->currentPage();
+        $lastPage = $deals->lastPage();
+        $start = max(1, $currentPage - 2);
+        $end = min($lastPage, $currentPage + 2);
+    @endphp
+    
+    @if ($start > 1)
+        <a href="{{ $deals->url(1) }}&{{ $params }}">[1]</a>
+        @if ($start > 2) <span>...</span> @endif
+    @endif
+    
+    @for ($i = $start; $i <= $end; $i++)
+        @if ($i == $currentPage)
+            <span><strong>[{{ $i }}]</strong></span>
+        @else
+            <a href="{{ $deals->url($i) }}&{{ $params }}">[{{ $i }}]</a>
         @endif
+    @endfor
+    
+    @if ($end < $lastPage)
+        @if ($end < $lastPage - 1) <span>...</span> @endif
+        <a href="{{ $deals->url($lastPage) }}&{{ $params }}">[{{ $lastPage }}]</a>
+    @endif
+    
+    @if ($deals->hasMorePages())
+        <a href="{{ $deals->nextPageUrl() }}&{{ $params }}">[Вперёд →]</a>
+    @else
+        <span>[Вперёд →]</span>
+    @endif
+@endif
     </div>
 </body>
 </html>
