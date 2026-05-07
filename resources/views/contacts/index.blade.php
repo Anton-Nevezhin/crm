@@ -39,6 +39,7 @@
 
     <a href="{{ route('contacts.create') }}">Добавить контакт</a>
     <a href="{{ route('clients.index') }}">Назад к клиентам</a>
+    <a href="{{ route('contacts.export.excel') }}">📊 Экспорт в Excel</a>
 
     <table border="1" cellpadding="10">
         <thead>

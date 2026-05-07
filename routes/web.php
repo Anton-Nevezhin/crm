@@ -82,4 +82,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/clients/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
+    Route::get('/deals/export/excel', [DealController::class, 'exportExcel'])->name('deals.export.excel');
+    Route::get('/contacts/export/excel', [ContactController::class, 'exportExcel'])->name('contacts.export.excel');
 });

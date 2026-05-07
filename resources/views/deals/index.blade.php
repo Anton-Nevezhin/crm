@@ -57,6 +57,7 @@
     
     <a href="{{ route('deals.create') }}">Добавить сделку</a>
     <a href="{{ route('clients.index') }}">Назад к клиентам</a>
+    <a href="{{ route('deals.export.excel') }}">📊 Экспорт в Excel</a>
     
     <table border="1" cellpadding="10">
         <thead>

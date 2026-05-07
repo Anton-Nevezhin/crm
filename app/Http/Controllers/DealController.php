@@ -6,6 +6,8 @@ use App\Models\Deal;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Jobs\SendTelegramNotification;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class DealController extends Controller
 {
@@ -156,5 +158,40 @@ class DealController extends Controller
         $maxCount = $reports->max('total_count') ?: 1;
         
         return view('reports.months', compact('reports', 'maxCount'));
+    }
+
+    public function exportExcel()
+    {
+        $deals = Deal::with('client')->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Клиент');
+        $sheet->setCellValue('C1', 'Название');
+        $sheet->setCellValue('D1', 'Сумма');
+        $sheet->setCellValue('E1', 'Статус');
+        $sheet->setCellValue('F1', 'Дата создания');
+
+        $row = 2;
+        foreach ($deals as $deal) {
+            $sheet->setCellValue('A' . $row, $deal->id);
+            $sheet->setCellValue('B' . $row, $deal->client->name ?? '—');
+            $sheet->setCellValue('C' . $row, $deal->name);
+            $sheet->setCellValue('D' . $row, $deal->amount);
+            $sheet->setCellValue('E' . $row, $deal->status);
+            $sheet->setCellValue('F' . $row, $deal->created_at);
+            $row++;
+        }
+
+        $filename = 'deals_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        exit;
     }
 }

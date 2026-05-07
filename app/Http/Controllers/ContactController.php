@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ContactController extends Controller
 {
@@ -130,6 +132,48 @@ class ContactController extends Controller
         }
         
         fclose($handle);
+        exit;
+    }
+
+    public function exportExcel()
+    {
+        $contacts = Contact::with('client')->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Заголовки
+        $sheet->setCellValue('A1', 'ID');
+        $sheet->setCellValue('B1', 'Клиент');
+        $sheet->setCellValue('C1', 'Тип');
+        $sheet->setCellValue('D1', 'Дата контакта');
+        $sheet->setCellValue('E1', 'Комментарий');
+
+        // Данные
+        $row = 2;
+        foreach ($contacts as $contact) {
+            $typeText = match($contact->type) {
+                'call' => 'Звонок',
+                'meeting' => 'Встреча',
+                'email' => 'Письмо',
+                default => $contact->type,
+            };
+
+            $sheet->setCellValue('A' . $row, $contact->id);
+            $sheet->setCellValue('B' . $row, $contact->client->name ?? '—');
+            $sheet->setCellValue('C' . $row, $typeText);
+            $sheet->setCellValue('D' . $row, $contact->contact_date);
+            $sheet->setCellValue('E' . $row, $contact->comment ?? '');
+            $row++;
+        }
+
+        $filename = 'contacts_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
         exit;
     }
 }
