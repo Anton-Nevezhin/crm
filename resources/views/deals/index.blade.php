@@ -1,15 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Сделки</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'Сделки')
+
+@section('content')
     <h1>Список сделок</h1>
 
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
     @if($errors->any())
-        <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+        <div class="alert alert-danger">
             <ul>
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -18,57 +19,48 @@
         </div>
     @endif
 
-    @if(session('success'))
-        <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div class="actions">
+        <a href="{{ route('deals.create') }}" class="btn">➕ Добавить сделку</a>
+        <a href="{{ route('deals.export.excel') }}" class="btn">📊 Экспорт в Excel</a>
+    </div>
 
-    <form method="GET" action="{{ route('deals.index') }}" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ old('search', request()->get('search')) }}">
-
+    <form method="GET" action="{{ route('deals.index') }}" class="filter-form">
+        <input type="text" name="search" placeholder="Поиск по названию..." value="{{ request()->get('search') }}">
+        
         <select name="per_page">
-            <option value="10" {{ old('per_page', request()->get('per_page')) == 10 ? 'selected' : '' }}>10</option>
-            <option value="25" {{ old('per_page', request()->get('per_page')) == 25 ? 'selected' : '' }}>25</option>
-            <option value="50" {{ old('per_page', request()->get('per_page')) == 50 ? 'selected' : '' }}>50</option>
-            <option value="100" {{ old('per_page', request()->get('per_page')) == 100 ? 'selected' : '' }}>100</option>
+            <option value="10" {{ request()->get('per_page') == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request()->get('per_page') == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request()->get('per_page') == 50 ? 'selected' : '' }}>50</option>
+            <option value="100" {{ request()->get('per_page') == 100 ? 'selected' : '' }}>100</option>
         </select>
         
         <select name="status">
-            <option value="all" {{ (old('status', request()->get('status')) == 'all') ? 'selected' : '' }}>Все статусы</option>
-            <option value="new" {{ (old('status', request()->get('status')) == 'new') ? 'selected' : '' }}>🆕 Новые</option>
-            <option value="in_progress" {{ (old('status', request()->get('status')) == 'in_progress') ? 'selected' : '' }}>⏳ В работе</option>
-            <option value="closed" {{ (old('status', request()->get('status')) == 'closed') ? 'selected' : '' }}>✅ Закрытые</option>
-            <option value="lost" {{ (old('status', request()->get('status')) == 'lost') ? 'selected' : '' }}>❌ Потерянные</option>
+            <option value="all">Все статусы</option>
+            <option value="new">Новые</option>
+            <option value="in_progress">В работе</option>
+            <option value="closed">Закрытые</option>
+            <option value="lost">Потерянные</option>
         </select>
-
-        <input type="date" name="date_from" value="{{ old('date_from', request()->get('date_from')) }}" placeholder="Дата от">
-        <input type="date" name="date_to" value="{{ old('date_to', request()->get('date_to')) }}" placeholder="Дата до">
-
-        <input type="number" name="amount_from" placeholder="Сумма от" value="{{ old('amount_from', request()->get('amount_from')) }}">
-        <input type="number" name="amount_to" placeholder="Сумма до" value="{{ old('amount_to', request()->get('amount_to')) }}">
         
-        <input type="hidden" name="sort_field" value="{{ request()->get('sort_field', 'id') }}">
-        <input type="hidden" name="sort_dir" value="{{ request()->get('sort_dir', 'asc') }}">
+        <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
+        <input type="date" name="date_to" value="{{ request()->get('date_to') }}" placeholder="Дата до">
+        <input type="number" name="amount_from" placeholder="Сумма от" value="{{ request()->get('amount_from') }}">
+        <input type="number" name="amount_to" placeholder="Сумма до" value="{{ request()->get('amount_to') }}">
         
         <button type="submit">Применить</button>
-        <a href="{{ route('deals.index') }}">Сбросить</a>
+        <a href="{{ route('deals.index') }}" class="btn">Сбросить</a>
     </form>
-    
-    <a href="{{ route('deals.create') }}">Добавить сделку</a>
-    <a href="{{ route('clients.index') }}">Назад к клиентам</a>
-    <a href="{{ route('deals.export.excel') }}">📊 Экспорт в Excel</a>
-    
-    <table border="1" cellpadding="10">
+
+    <table>
         <thead>
             <tr>
-                <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'id', 'sort_dir' => (request()->get('sort_field') == 'id' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">ID ↕</a></th>
+                <th style="width: 50px;"><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'id', 'sort_dir' => (request()->get('sort_field') == 'id' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">ID ↕</a></th>
                 <th>Клиент</th>
                 <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'name', 'sort_dir' => (request()->get('sort_field') == 'name' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Название ↕</a></th>
                 <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'amount', 'sort_dir' => (request()->get('sort_field') == 'amount' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Сумма ↕</a></th>
                 <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'status', 'sort_dir' => (request()->get('sort_field') == 'status' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Статус ↕</a></th>
                 <th><a href="{{ route('deals.index', array_merge(request()->all(), ['sort_field' => 'created_at', 'sort_dir' => (request()->get('sort_field') == 'created_at' && request()->get('sort_dir') == 'asc') ? 'desc' : 'asc'])) }}">Дата ↕</a></th>
-                <th>Действия</th>
+                <th style="width: 140px;">Действия</th>
             </tr>
         </thead>
         <tbody>
@@ -78,83 +70,66 @@
                 <td>{{ $deal->client->name ?? '—' }}</td>
                 <td>{{ $deal->name }}</td>
                 <td>{{ number_format($deal->amount, 2) }} ₽</td>
-                <td>
-                    @if($deal->status == 'new')
-                        🆕 Новая
-                    @elseif($deal->status == 'in_progress')
-                        ⏳ В работе
-                    @elseif($deal->status == 'closed')
-                        ✅ Закрыта
-                    @else
-                        ❌ Потеряна
-                    @endif
-                </td>
-                <td>{{ $deal->created_at }}</td>
-                <td>
+                <td>{{ $deal->status_name }}</td>
+                <td>{{ $deal->created_at->format('d.m.Y') }}</td>
+                <td class="actions-cell">
                     <a href="{{ route('deals.show', $deal) }}">Просмотр</a>
                     <a href="{{ route('deals.edit', $deal) }}">Редактировать</a>
-                    <form method="POST" action="{{ route('deals.destroy', $deal) }}" style="display:inline">
+                    <button type="submit" form="delete-form-{{ $deal->id }}" class="btn-small">Удалить</button>
+                    <form id="delete-form-{{ $deal->id }}" method="POST" action="{{ route('deals.destroy', $deal) }}" style="display: none;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" onclick="return confirm('Точно удалить?')">Удалить</button>
                     </form>
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
-    <div>
 
-@php
-    $params = http_build_query([
-        'per_page' => request()->get('per_page', 10),
-        'search' => request()->get('search'),
-        'status' => request()->get('status'),
-        'date_from' => request()->get('date_from'),
-        'date_to' => request()->get('date_to'),
-        'amount_from' => request()->get('amount_from'),
-        'amount_to' => request()->get('amount_to'),
-    ]);
-@endphp
-
-@if ($deals->hasPages())
-    @if ($deals->onFirstPage())
-        <span>[← Назад]</span>
-    @else
-        <a href="{{ $deals->previousPageUrl() }}&{{ $params }}">[← Назад]</a>
-    @endif
-    
     @php
-        $currentPage = $deals->currentPage();
-        $lastPage = $deals->lastPage();
-        $start = max(1, $currentPage - 2);
-        $end = min($lastPage, $currentPage + 2);
+        $params = request()->except('page');
+        $queryParams = !empty($params) ? '&' . http_build_query($params) : '';
     @endphp
-    
-    @if ($start > 1)
-        <a href="{{ $deals->url(1) }}&{{ $params }}">[1]</a>
-        @if ($start > 2) <span>...</span> @endif
+
+    @if ($deals->hasPages())
+        <div class="pagination-custom">
+            @if ($deals->onFirstPage())
+                <span>[← Назад]</span>
+            @else
+                <a href="{{ $deals->previousPageUrl() }}&{{ $queryParams }}">[← Назад]</a>
+            @endif
+
+            @php
+                $currentPage = $deals->currentPage();
+                $lastPage = $deals->lastPage();
+                $start = max(1, $currentPage - 2);
+                $end = min($lastPage, $currentPage + 2);
+            @endphp
+
+            @if ($start > 1)
+                <a href="{{ $deals->url(1) }}&{{ $queryParams }}">[1]</a>
+                @if ($start > 2) <span>...</span> @endif
+            @endif
+
+            @for ($i = $start; $i <= $end; $i++)
+                @if ($i == $currentPage)
+                    <span><strong>[{{ $i }}]</strong></span>
+                @else
+                    <a href="{{ $deals->url($i) }}&{{ $queryParams }}">[{{ $i }}]</a>
+                @endif
+            @endfor
+
+            @if ($end < $lastPage)
+                @if ($end < $lastPage - 1) <span>...</span> @endif
+                <a href="{{ $deals->url($lastPage) }}&{{ $queryParams }}">[{{ $lastPage }}]</a>
+            @endif
+
+            @if ($deals->hasMorePages())
+                <a href="{{ $deals->nextPageUrl() }}&{{ $queryParams }}">[Вперёд →]</a>
+            @else
+                <span>[Вперёд →]</span>
+            @endif
+        </div>
     @endif
-    
-    @for ($i = $start; $i <= $end; $i++)
-        @if ($i == $currentPage)
-            <span><strong>[{{ $i }}]</strong></span>
-        @else
-            <a href="{{ $deals->url($i) }}&{{ $params }}">[{{ $i }}]</a>
-        @endif
-    @endfor
-    
-    @if ($end < $lastPage)
-        @if ($end < $lastPage - 1) <span>...</span> @endif
-        <a href="{{ $deals->url($lastPage) }}&{{ $params }}">[{{ $lastPage }}]</a>
-    @endif
-    
-    @if ($deals->hasMorePages())
-        <a href="{{ $deals->nextPageUrl() }}&{{ $params }}">[Вперёд →]</a>
-    @else
-        <span>[Вперёд →]</span>
-    @endif
-@endif
-    </div>
-</body>
-</html>
+
+@endsection

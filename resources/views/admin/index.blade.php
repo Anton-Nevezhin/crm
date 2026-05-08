@@ -1,43 +1,50 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Панель управления</title>
-    <meta charset="utf-8">
-</head>
-<body>
-    <h1>Панель управления</h1>
+@extends('layouts.app')
 
-    <p><a href="{{ route('clients.index') }}">Клиенты</a> | <a href="{{ route('deals.index') }}">Сделки</a> | <a href="{{ route('contacts.index') }}">Контакты</a></p>
+@section('title', 'Админ-панель')
 
-    <h2>Общая статистика</h2>
-    <ul>
-        <li>👥 Всего клиентов: {{ $totalClients }}</li>
-        <li>💼 Всего сделок: {{ $totalDeals }}</li>
-        <li>📞 Всего контактов: {{ $totalContacts }}</li>
-    </ul>
+@section('content')
+    <h1>Админ-панель</h1>
+    <p>Общая сводка по CRM.</p>
 
-    <h2>Последние 5 клиентов</h2>
-    <ul>
-        @foreach($recentClients as $client)
-            <li><a href="{{ route('clients.show', $client) }}">{{ $client->name }}</a> — {{ $client->created_at->diffForHumans() }}</li>
-        @endforeach
-    </ul>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Клиенты</h3>
+            <div class="number">{{ $totalClients }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Сделки</h3>
+            <div class="number">{{ $totalDeals }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Контакты</h3>
+            <div class="number">{{ $totalContacts }}</div>
+        </div>
+    </div>
 
-    <h2>Последние 5 сделок</h2>
-    <ul>
-        @foreach($recentDeals as $deal)
-            <li><a href="{{ route('deals.show', $deal) }}">{{ $deal->name }}</a> ({{ $deal->client->name }}) — {{ $deal->created_at->diffForHumans() }}</li>
-        @endforeach
-    </ul>
-
-    <h2>Последние 5 контактов</h2>
-    <ul>
-        @foreach($recentContacts as $contact)
-            <li>
-                <a href="{{ route('contacts.show', $contact) }}">{{ $contact->type }}</a>
-                ({{ $contact->client->name }}) — {{ $contact->contact_date }}
-            </li>
-        @endforeach
-    </ul>
-</body>
-</html>
+    <div style="display: flex; gap: 40px; flex-wrap: wrap; margin-top: 30px;">
+        <div style="flex: 1;">
+            <h2>Последние клиенты</h2>
+            <ul class="recent-list">
+                @foreach($recentClients as $client)
+                    <li><a href="{{ route('clients.show', $client) }}">{{ $client->name }}</a> — {{ $client->created_at->diffForHumans() }}</li>
+                @endforeach
+            </ul>
+        </div>
+        <div style="flex: 1;">
+            <h2>Последние сделки</h2>
+            <ul class="recent-list">
+                @foreach($recentDeals as $deal)
+                    <li><a href="{{ route('deals.show', $deal) }}">{{ $deal->name }}</a> ({{ $deal->client->name }}) — {{ $deal->created_at->diffForHumans() }}</li>
+                @endforeach
+            </ul>
+        </div>
+        <div style="flex: 1;">
+            <h2>Последние контакты</h2>
+            <ul class="recent-list">
+                @foreach($recentContacts as $contact)
+                    <li><a href="{{ route('contacts.show', $contact) }}">{{ $contact->type }}</a> ({{ $contact->client->name }}) — {{ $contact->contact_date }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endsection

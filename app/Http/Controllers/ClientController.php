@@ -114,7 +114,7 @@ class ClientController extends Controller
         $dealsSumFrom = request()->get('deals_sum_from');
         $dealsSumTo = request()->get('deals_sum_to');
         
-        $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
+        $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount', 'contacts_count'];
         $allowedDirs = ['asc', 'desc'];
         $allowedPerPage = [10, 25, 50, 100];
 
@@ -179,7 +179,7 @@ class ClientController extends Controller
         $dealsSumFrom = request()->get('deals_sum_from');
         $dealsSumTo = request()->get('deals_sum_to');
 
-        $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount'];
+        $allowedFields = ['id', 'name', 'email', 'created_at', 'deals_sum_amount', 'contacts_count'];
         $allowedDirections = ['asc', 'desc'];
 
         $perPage = request()->get('per_page', 10);

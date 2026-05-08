@@ -1,14 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Клиенты</title>
-    <meta charset="utf-8">
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'Клиенты')
+
+@section('content')
     <h1>Список клиентов</h1>
 
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
     @if($errors->any())
-        <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+        <div class="alert alert-danger">
             <ul>
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -17,131 +19,105 @@
         </div>
     @endif
 
-    @if(session('success'))
-        <div style="color: green; padding: 10px; margin: 10px 0; border: 1px solid green;">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div class="actions">
+        <a href="{{ route('clients.create') }}" class="btn">➕ Добавить клиента</a>
+        <a href="{{ route('clients.export.excel') }}" class="btn">📊 Экспорт в Excel</a>
+        <a href="{{ route('clients.export.csv') }}" class="btn">📥 Экспорт в CSV</a>
+    </div>
 
-    <a href="{{ route('clients.export.excel') }}">📊 Экспорт в Excel</a>
-    <a href="{{ route('clients.export.csv') }}" style="margin-left: 15px;">📥 Экспорт в CSV</a>
-
-    <form method="GET" action="{{ route('clients.search') }}" style="margin-bottom: 20px;">
-        <input type="text" name="search" placeholder="Поиск по имени, email или телефону..." value="{{ old('search', request()->get('search')) }}" style="padding: 5px; width: 300px;">
-        
-        <input type="date" name="date_from" value="{{ old('date_from', request()->get('date_from')) }}" placeholder="Дата от">
-        <input type="date" name="date_to" value="{{ old('date_to', request()->get('date_to')) }}" placeholder="Дата до">
-        
+    <form method="GET" action="{{ route('clients.search') }}" class="filter-form">
+        <input type="text" name="search" placeholder="Поиск..." value="{{ request()->get('search') }}">
+        <input type="date" name="date_from" value="{{ request()->get('date_from') }}">
+        <input type="date" name="date_to" value="{{ request()->get('date_to') }}">
         <select name="per_page">
-            <option value="10" {{ (old('per_page', request()->get('per_page')) == 10) ? 'selected' : '' }}>10</option>
-            <option value="25" {{ (old('per_page', request()->get('per_page')) == 25) ? 'selected' : '' }}>25</option>
-            <option value="50" {{ (old('per_page', request()->get('per_page')) == 50) ? 'selected' : '' }}>50</option>
-            <option value="100" {{ (old('per_page', request()->get('per_page')) == 100) ? 'selected' : '' }}>100</option>
+            <option value="10" {{ request()->get('per_page') == 10 ? 'selected' : '' }}>10</option>
+            <option value="25" {{ request()->get('per_page') == 25 ? 'selected' : '' }}>25</option>
+            <option value="50" {{ request()->get('per_page') == 50 ? 'selected' : '' }}>50</option>
+            <option value="100" {{ request()->get('per_page') == 100 ? 'selected' : '' }}>100</option>
         </select>
-        
-        <input type="number" name="deals_sum_from" placeholder="Сумма сделок от" value="{{ old('deals_sum_from', request()->get('deals_sum_from')) }}">
-        <input type="number" name="deals_sum_to" placeholder="Сумма сделок до" value="{{ old('deals_sum_to', request()->get('deals_sum_to')) }}">
-
+        <input type="number" name="deals_sum_from" placeholder="Сумма от" value="{{ request()->get('deals_sum_from') }}">
+        <input type="number" name="deals_sum_to" placeholder="Сумма до" value="{{ request()->get('deals_sum_to') }}">
         <button type="submit">Найти</button>
-        <a href="{{ route('clients.index') }}">Сбросить</a>
-        
-        <input type="hidden" name="sort_field" value="{{ $field ?? 'id' }}">
-        <input type="hidden" name="sort_dir" value="{{ $direction ?? 'asc' }}">
+        <a href="{{ route('clients.index') }}" class="btn">Сбросить</a>
     </form>
-    
-    <a href="{{ route('clients.create') }}">Добавить клиента</a>
-    
-    <table border="1" cellpadding="10">
-        <thead>
-            <tr>
-                <th><a href="{{ route('clients.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">ID ↕</a></th>
-                <th><a href="{{ route('clients.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Имя ↕</a></th>
-                <th><a href="{{ route('clients.sort', ['email', $direction == 'asc' && $field == 'email' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Email ↕</a></th>
-                <th>Телефон</th>
-                <th>Адрес</th>
-                <th>Сделок</th>
-                <th><a href="{{ route('clients.sort', ['deals_sum_amount', $direction == 'asc' && $field == 'deals_sum_amount' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Сумма сделок ↕</a></th>
-                <th><a href="{{ route('clients.sort', ['created_at', $direction == 'asc' && $field == 'created_at' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Дата создания ↕</a></th>
-                <th>Контакты</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($clients as $client)
-            <tr>
-                <td>{{ $client->id }}</td>
-                <td>{{ $client->name }}</td>
-                <td>{{ $client->email }}</td>
-                <td>{{ $client->phone ?? '—' }}</td>
-                <td>{{ $client->address ?? '—' }}</td>
-                <td>{{ $client->deals_count }}</td>
-                <td>{{ number_format($client->deals_sum_amount ?? 0, 2) }} ₽</td>
-                <td>{{ $client->created_at }}</td>
-                <td>{{ $client->contacts_count }}</td>
-                <td>
-                    <a href="{{ route('clients.show', $client) }}">Просмотр</a>
-                    <a href="{{ route('clients.edit', $client) }}">Редактировать</a>
-                    <form method="POST" action="{{ route('clients.destroy', $client) }}" style="display:inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" onclick="return confirm('Точно удалить?')">Удалить</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div>
 
-    @php
-        $queryParams = http_build_query([
-            'per_page' => request()->get('per_page', 10),
-            'search' => request()->get('search'),
-            'date_from' => request()->get('date_from'),
-            'date_to' => request()->get('date_to'),
-            'deals_sum_from' => request()->get('deals_sum_from'),
-            'deals_sum_to' => request()->get('deals_sum_to'),
-        ]);
-    @endphp
+<table>
+    <thead>
+        <tr>
+            <th style="width: 50px;"><a href="{{ route('clients.sort', ['id', $direction == 'asc' && $field == 'id' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">ID ↕</a></th>
+            <th><a href="{{ route('clients.sort', ['name', $direction == 'asc' && $field == 'name' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Имя ↕</a></th>
+            <th><a href="{{ route('clients.sort', ['email', $direction == 'asc' && $field == 'email' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Email ↕</a></th>
+            <th class="col-sum"><a href="{{ route('clients.sort', ['deals_sum_amount', $direction == 'asc' && $field == 'deals_sum_amount' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Сумма ↕</a></th>
+            <th class="col-contacts"><a href="{{ route('clients.sort', ['contacts_count', $direction == 'asc' && $field == 'contacts_count' ? 'desc' : 'asc']) . '?' . http_build_query(request()->only(['search', 'date_from', 'date_to'])) }}">Контакты ↕</a></th>
+            <th style="width: 140px;">Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($clients as $client)
+        <tr>
+            <td>{{ $client->id }}</td>
+            <td>{{ $client->name }}</td>
+            <td>{{ $client->email }}</td>
+            <td>{{ number_format($client->deals_sum_amount ?? 0, 2) }} ₽</td>
+            <td>{{ $client->contacts_count }}</td>
+            <td class="actions-cell">
+                <a href="{{ route('clients.show', $client) }}">Просмотр</a>
+                <a href="{{ route('clients.edit', $client) }}">Редактировать</a>
+                <button type="submit" form="delete-form-{{ $client->id }}" class="btn-small">Удалить</button>
+                <form id="delete-form-{{ $client->id }}" method="POST" action="{{ route('clients.destroy', $client) }}" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
 
-        @if ($clients->hasPages())
-            @if ($clients->onFirstPage())
-                <span>[← Назад]</span>
+@php
+    $params = request()->except('page');
+    $queryParams = !empty($params) ? '&' . http_build_query($params) : '';
+@endphp
+
+@if ($clients->hasPages())
+    <div class="pagination-custom">
+        @if ($clients->onFirstPage())
+            <span>[← Назад]</span>
+        @else
+            <a href="{{ $clients->previousPageUrl() }}&{{ $queryParams }}">[← Назад]</a>
+        @endif
+
+        @php
+            $currentPage = $clients->currentPage();
+            $lastPage = $clients->lastPage();
+            $start = max(1, $currentPage - 2);
+            $end = min($lastPage, $currentPage + 2);
+        @endphp
+
+        @if ($start > 1)
+            <a href="{{ $clients->url(1) }}&{{ $queryParams }}">[1]</a>
+            @if ($start > 2) <span>...</span> @endif
+        @endif
+
+        @for ($i = $start; $i <= $end; $i++)
+            @if ($i == $currentPage)
+                <span><strong>[{{ $i }}]</strong></span>
             @else
-                <a href="{{ $clients->previousPageUrl() }}&{{ $queryParams }}">[← Назад]</a>
+                <a href="{{ $clients->url($i) }}&{{ $queryParams }}">[{{ $i }}]</a>
             @endif
-            
-            @php
-                $currentPage = $clients->currentPage();
-                $lastPage = $clients->lastPage();
-                $start = max(1, $currentPage - 2);
-                $end = min($lastPage, $currentPage + 2);
-            @endphp
-            
-            @if ($start > 1)
-                <a href="{{ $clients->url(1) }}&{{ $queryParams }}">[1]</a>
-                @if ($start > 2) <span>...</span> @endif
-            @endif
-            
-            @for ($i = $start; $i <= $end; $i++)
-                @if ($i == $currentPage)
-                    <span><strong>[{{ $i }}]</strong></span>
-                @else
-                    <a href="{{ $clients->url($i) }}&{{ $queryParams }}">[{{ $i }}]</a>
-                @endif
-            @endfor
-            
-            @if ($end < $lastPage)
-                @if ($end < $lastPage - 1) <span>...</span> @endif
-                <a href="{{ $clients->url($lastPage) }}&{{ $queryParams }}">[{{ $lastPage }}]</a>
-            @endif
-            
-            @if ($clients->hasMorePages())
-                <a href="{{ $clients->nextPageUrl() }}&{{ $queryParams }}">[Вперёд →]</a>
-            @else
-                <span>[Вперёд →]</span>
-            @endif
+        @endfor
+
+        @if ($end < $lastPage)
+            @if ($end < $lastPage - 1) <span>...</span> @endif
+            <a href="{{ $clients->url($lastPage) }}&{{ $queryParams }}">[{{ $lastPage }}]</a>
+        @endif
+
+        @if ($clients->hasMorePages())
+            <a href="{{ $clients->nextPageUrl() }}&{{ $queryParams }}">[Вперёд →]</a>
+        @else
+            <span>[Вперёд →]</span>
         @endif
     </div>
-</body>
-</html>
+@endif
+
+@endsection

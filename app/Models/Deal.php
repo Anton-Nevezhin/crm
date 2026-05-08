@@ -21,4 +21,15 @@ class Deal extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function getStatusNameAttribute()
+    {
+        return match($this->status) {
+            'new' => 'Новая',
+            'in_progress' => 'В работе',
+            'closed' => 'Закрыта',
+            'lost' => 'Потеряна',
+            default => $this->status,
+        };
+    }
 }

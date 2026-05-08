@@ -1,122 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>CRM Статистика</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Дашборд</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
-    <h1>CRM Дашборд</h1>
-    
-    <h2>Статистика по сделкам</h2>
-    <p><strong>Всего сделок:</strong> {{ $totalDeals }}</p>
-    <p><strong>Общая сумма:</strong> {{ number_format($totalAmount, 2) }} ₽</p>
-    
-    <h2>По статусам</h2>
-    <ul>
-        <li>🆕 Новые: {{ $statusCounts['new'] }}</li>
-        <li>⏳ В работе: {{ $statusCounts['in_progress'] }}</li>
-        <li>✅ Закрытые: {{ $statusCounts['closed'] }}</li>
-        <li>❌ Потерянные: {{ $statusCounts['lost'] }}</li>
-    </ul>
-    
-    <h2>Статистика по клиентам</h2>
-    <ul>
-        <li>👥 Всего клиентов: {{ $totalClients }}</li>
-        <li>📋 Клиентов со сделками: {{ $clientsWithDeals }}</li>
-        <li>📭 Клиентов без сделок: {{ $clientsWithoutDeals }}</li>
-        <li>💰 Общая сумма всех сделок по всем клиентам: {{ number_format($totalDealsSum, 2) }} ₽</li>
-    </ul>
+    <div class="container">
+        <h1>Общая статистика</h1>
 
-    <h2>Динамика сделок за последние 7 дней</h2>
-
-    <div style="display: flex; align-items: flex-end; gap: 10px; margin-top: 20px; min-height: 200px;">
-        @foreach($dealsByDay as $date => $count)
-            @php
-                $height = $maxCount > 0 ? ($count / $maxCount) * 150 : 0;
-                $barColor = $count > 0 ? '#4CAF50' : '#ddd';
-            @endphp
-            <div style="text-align: center; flex: 1;">
-                <div style="height: {{ $height }}px; width: 100%; background-color: {{ $barColor }}; border-radius: 4px 4px 0 0;"></div>
-                <div style="font-size: 12px; margin-top: 5px;">
-                    {{ \Carbon\Carbon::parse($date)->format('d.m') }}
-                </div>
-                <div style="font-size: 11px; color: #666;">{{ $count }}</div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Всего сделок</h3>
+                <div class="number">{{ $totalDeals }}</div>
             </div>
-        @endforeach
+            <div class="stat-card">
+                <h3>Общая сумма</h3>
+                <div class="number">{{ number_format($totalAmount, 2) }} ₽</div>
+            </div>
+            <div class="stat-card">
+                <h3>Всего клиентов</h3>
+                <div class="number">{{ $totalClients }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Клиентов со сделками</h3>
+                <div class="number">{{ $clientsWithDeals }}</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Новые сделки</h3>
+                <div class="number">{{ $statusCounts['new'] }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>В работе</h3>
+                <div class="number">{{ $statusCounts['in_progress'] }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Закрытые</h3>
+                <div class="number">{{ $statusCounts['closed'] }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Потерянные</h3>
+                <div class="number">{{ $statusCounts['lost'] }}</div>
+            </div>
+        </div>
+
+        <h2>Динамика сделок за последние дни</h2>
+        <div class="chart-container">
+            @foreach($dealsByDay as $date => $count)
+                @php
+                    $height = $maxCount > 0 ? ($count / $maxCount) * 150 : 0;
+                    $barColor = $count > 0 ? '#4361ee' : '#e2e8f0';
+                @endphp
+                <div class="chart-bar">
+                    <div class="bar" style="height: {{ $height }}px; background-color: {{ $barColor }};"></div>
+                    <div class="bar-label">{{ \Carbon\Carbon::parse($date)->format('d.m') }}</div>
+                    <div class="bar-value">{{ $count }}</div>
+                </div>
+            @endforeach
+        </div>
+
+        <h2>Топ-5 клиентов по сумме сделок</h2>
+        <table class="top-table">
+            <thead>
+                <tr>
+                    <th>Клиент</th>
+                    <th>Сумма сделок</th>
+                    <th>Количество сделок</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($topClients as $client)
+                <tr>
+                    <td>{{ $client->name }}</td>
+                    <td>{{ number_format($client->deals_sum_amount, 2) }} ₽</td>
+                    <td>{{ $client->deals_count }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <h2>Воронка продаж</h2>
+        <table class="funnel-table">
+            <thead>
+                <tr>
+                    <th>Статус</th>
+                    <th>Количество</th>
+                    <th>Процент</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $total = $totalDeals;
+                    $statusNames = [
+                        'new' => 'Новые',
+                        'in_progress' => 'В работе',
+                        'closed' => 'Закрытые',
+                        'lost' => 'Потерянные',
+                    ];
+                @endphp
+                @foreach($statusCounts as $status => $count)
+                <tr>
+                    <td>{{ $statusNames[$status] }}</td>
+                    <td>{{ $count }}</td>
+                    <td>{{ $total > 0 ? round(($count / $total) * 100, 1) : 0 }}%</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="footer-links">
+            <a href="{{ route('login') }}" class="btn">Войти в систему</a>
+            <a href="{{ route('clients.index') }}" class="btn">Клиенты</a>
+            <a href="{{ route('deals.index') }}" class="btn">Сделки</a>
+            <a href="{{ route('reports.months') }}" class="btn">Отчёт по месяцам</a>
+        </div>
     </div>
-
-    <h2>Топ-5 клиентов по сумме сделок</h2>
-
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Клиент</th>
-                <th>Сумма сделок</th>
-                <th>Количество сделок</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($topClients as $client)
-            <tr>
-                <td>{{ $client->name }}</td>
-                <td>{{ number_format($client->deals_sum_amount, 2) }} ₽</td>
-                <td>{{ $client->deals_count }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <h2>Воронка продаж</h2>
-
-@php
-    $total = $totalDeals;
-    $statusNames = [
-        'new' => '🆕 Новые',
-        'in_progress' => '⏳ В работе',
-        'closed' => '✅ Закрытые',
-        'lost' => '❌ Потерянные',
-    ];
-@endphp
-
-    <table border="1" cellpadding="10" style="width: 100%; margin-top: 20px;">
-        <thead>
-            <tr>
-                <th>Статус</th>
-                <th>Количество</th>
-                <th>Процент</th>
-                <th>Визуализация</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($statusCounts as $status => $count)
-            <tr>
-                <td>{{ $statusNames[$status] }}</td>
-                <td>{{ $count }}</td>
-                <td>{{ $total > 0 ? round(($count / $total) * 100, 1) : 0 }}%</td>
-                <td>
-                    <div style="width: 100%; background-color: #f0f0f0; border-radius: 5px;">
-                        <div style="width: {{ $total > 0 ? ($count / $total) * 100 : 0 }}%; background-color: 
-                            @if($status == 'new') #4CAF50
-                            @elseif($status == 'in_progress') #FFC107
-                            @elseif($status == 'closed') #2196F3
-                            @else #f44336
-                            @endif; 
-                            height: 20px; border-radius: 5px;">
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <p><strong>Всего сделок:</strong> {{ $total }}</p>
-
-    <p>
-        <a href="{{ route('clients.index') }}">Клиенты</a> |
-        <a href="{{ route('deals.index') }}">Сделки</a>
-        <a href="{{ route('reports.months') }}">📊 Отчёт по месяцам</a>
-        <a href="{{ route('admin.index') }}">⚙️ Админка</a>
-    </p>
 </body>
 </html>
