@@ -1,15 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Отчёт по месяцам</title>
-    <meta charset="utf-8">
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'Отчёт по месяцам')
+
+@section('content')
     <h1>Отчёт по месяцам (последние 12 месяцев)</h1>
-    
-    <p><a href="{{ route('deals.index') }}">← Назад к сделкам</a></p>
-    
-    <table border="1" cellpadding="8">
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>Всего сделок</h3>
+            <div class="number">{{ $reports->sum('total_count') }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>Общая сумма</h3>
+            <div class="number">{{ number_format($reports->sum('total_amount'), 2) }} ₽</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        @foreach($reports as $report)
+            <div class="chart-bar">
+                @php
+                    $height = ($report->total_count / $maxCount) * 150;
+                @endphp
+                <div class="bar" style="height: {{ $height }}px; background-color: var(--accent);"></div>
+                <div class="bar-label">{{ \Carbon\Carbon::parse($report->month . '-01')->format('M Y') }}</div>
+                <div class="bar-value">{{ $report->total_count }}</div>
+            </div>
+        @endforeach
+    </div>
+
+    <table>
         <thead>
             <tr>
                 <th>Месяц</th>
@@ -20,27 +40,16 @@
         <tbody>
             @foreach($reports as $report)
             <tr>
-                <td>{{ \Carbon\Carbon::parse($report->month . '-01')->format('F Y') }}</td>
+                <td>{{ \Carbon\Carbon::parse($report->month . '-01')->translatedFormat('F Y') }}</td>
                 <td>{{ $report->total_count }}</td>
                 <td>{{ number_format($report->total_amount, 2) }} ₽</td>
             </tr>
             @endforeach
         </tbody>
     </table>
-    
-    <h2>График по месяцам</h2>
-    
-    <div style="display: flex; gap: 10px; margin-top: 20px; align-items: flex-end;">
-        @foreach($reports as $report)
-            @php
-                $height = ($report->total_count / $maxCount) * 200;
-            @endphp
-            <div style="text-align: center; flex: 1;">
-                <div style="height: {{ $height }}px; background-color: #4CAF50; width: 100%;"></div>
-                <div>{{ \Carbon\Carbon::parse($report->month . '-01')->format('M') }}</div>
-                <div>{{ $report->total_count }}</div>
-            </div>
-        @endforeach
+
+    <div class="footer-links">
+        <a href="{{ route('dashboard') }}" class="btn">На главную</a>
+        <a href="{{ route('deals.index') }}" class="btn">Сделки</a>
     </div>
-</body>
-</html>
+@endsection
