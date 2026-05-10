@@ -20,8 +20,8 @@
     @endif
 
     <div class="actions">
-        <a href="{{ route('deals.create') }}" class="btn">➕ Добавить сделку</a>
-        <a href="{{ route('deals.export.excel') }}" class="btn">📊 Экспорт в Excel</a>
+        <a href="{{ route('deals.create') }}" class="btn">Добавить сделку</a>
+        <a href="{{ route('deals.export.excel') }}" class="btn">Экспорт в Excel</a>
     </div>
 
     <form method="GET" action="{{ route('deals.index') }}" class="filter-form">

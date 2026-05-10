@@ -502,49 +502,29 @@ td, th {
     justify-content: center;
 }
 
-/* Гостевые страницы (логин, регистрация) */
-.guest-body {
-    background-color: var(--bg-light);
-    font-family: 'Montserrat', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.guest-wrapper {
-    width: 100%;
-    padding: 20px;
-}
-
-.guest-card {
-    max-width: 480px;
-    margin: 0 auto;
+/* Карточка для форм и просмотра */
+.card {
     background: var(--white);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 32px;
-}
-
-.guest-logo {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: var(--black);
-}
-
-.guest-card .form-group {
+    padding: 20px;
     margin-bottom: 20px;
 }
 
-.guest-card .form-group label {
+/* Группы полей в формах */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
 }
 
-.guest-card .form-group input {
+.form-group input,
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid var(--border);
@@ -552,57 +532,53 @@ td, th {
     font-family: 'Montserrat', sans-serif;
 }
 
-.guest-card .form-group input:focus {
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
 }
 
-.guest-card .btn {
-    width: 100%;
-    display: block;
-    text-align: center;
-    margin-top: 8px;
-}
-
-.guest-card .guest-links {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.guest-card .guest-links a {
-    color: var(--accent);
-    text-decoration: none;
-}
-
-.guest-card .guest-links a:hover {
-    text-decoration: underline;
-}
-
-/* Чекбокс "Запомнить меня" */
-.remember-wrapper {
+/* Кнопки в формах */
+.form-actions {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
     gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-.remember-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
+.btn-primary {
+    background-color: var(--accent);
+    color: white;
 }
 
-.remember-checkbox input {
-    width: auto;
-    margin: 0;
+.btn-primary:hover {
+    background-color: var(--accent-dark);
 }
 
-.remember-checkbox label {
-    margin: 0;
-    white-space: nowrap;
+.btn-secondary {
+    background-color: var(--border);
+    color: var(--black);
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+    background-color: var(--bg-light);
+    font-weight: 600;
 }

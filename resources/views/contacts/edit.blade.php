@@ -1,15 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Редактирование контакта</title>
-    <meta charset="utf-8">
-</head>
-<body>
-    <h1>Редактирование контакта</h1>
+@extends('layouts.app')
 
-    <form method="POST" action="{{ route('contacts.update', $contact) }}">
-        @csrf
-        @method('PUT')
+@section('title', 'Редактирование контакта')
+
+@section('content')
+    <h1>Редактирование контакта: {{ $contact->name }}</h1>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="card">
+        <form method="POST" action="{{ route('contacts.update', $contact) }}">
+            @csrf
+            @method('PUT')
 
         <div>
             <label>Клиент:</label><br>
@@ -25,9 +38,9 @@
         <div>
             <label>Тип контакта:</label><br>
             <select name="type" required>
-                <option value="call" {{ $contact->type == 'call' ? 'selected' : '' }}>📞 Звонок</option>
-                <option value="meeting" {{ $contact->type == 'meeting' ? 'selected' : '' }}>🤝 Встреча</option>
-                <option value="email" {{ $contact->type == 'email' ? 'selected' : '' }}>📧 Письмо</option>
+                <option value="call" {{ $contact->type == 'call' ? 'selected' : '' }}>Звонок</option>
+                <option value="meeting" {{ $contact->type == 'meeting' ? 'selected' : '' }}>Встреча</option>
+                <option value="email" {{ $contact->type == 'email' ? 'selected' : '' }}>Письмо</option>
             </select>
         </div>
 
@@ -41,8 +54,10 @@
             <textarea name="comment" rows="4" cols="50">{{ $contact->comment }}</textarea>
         </div>
 
-        <button type="submit">Сохранить</button>
-        <a href="{{ route('contacts.index') }}">Отмена</a>
-    </form>
-</body>
-</html>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a href="{{ route('contacts.index') }}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+@endsection

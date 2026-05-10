@@ -1,14 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Новый контакт</title>
-    <meta charset="utf-8">
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'Новый контакт')
+
+@section('content')
     <h1>Добавление нового контакта</h1>
 
-    <form method="POST" action="{{ route('contacts.store') }}">
-        @csrf
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="card">
+        <form method="POST" action="{{ route('contacts.store') }}">
+            @csrf
 
         <div>
             <label>Клиент:</label><br>
@@ -25,9 +38,9 @@
         <div>
             <label>Тип контакта:</label><br>
             <select name="type" required>
-                <option value="call">📞 Звонок</option>
-                <option value="meeting">🤝 Встреча</option>
-                <option value="email">📧 Письмо</option>
+                <option value="call">Звонок</option>
+                <option value="meeting">Встреча</option>
+                <option value="email">Письмо</option>
             </select>
         </div>
 
@@ -41,8 +54,10 @@
             <textarea name="comment" rows="4" cols="50"></textarea>
         </div>
 
-        <button type="submit">Сохранить</button>
-        <a href="{{ route('contacts.index') }}">Отмена</a>
-    </form>
-</body>
-</html>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a href="{{ route('contacts.index') }}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+@endsection

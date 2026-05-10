@@ -20,8 +20,8 @@
     @endif
 
     <div class="actions">
-        <a href="{{ route('contacts.create') }}" class="btn">➕ Добавить контакт</a>
-        <a href="{{ route('contacts.export.excel') }}" class="btn">📊 Экспорт в Excel</a>
+        <a href="{{ route('contacts.create') }}" class="btn">Добавить контакт</a>
+        <a href="{{ route('contacts.export.excel') }}" class="btn">Экспорт в Excel</a>
     </div>
 
     <form method="GET" action="{{ route('contacts.index') }}" class="filter-form">
