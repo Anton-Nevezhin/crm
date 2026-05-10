@@ -28,7 +28,7 @@
 
 ## Установка
 
-git clone https://github.com/ТВОЙ_ЛОГИН/crm.git
+git clone https://github.com/Anton-Nevezhin/crm.git
 cd crm
 composer install
 cp .env.example .env
