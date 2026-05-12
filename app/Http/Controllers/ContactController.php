@@ -17,14 +17,14 @@ class ContactController extends Controller
         $dateTo = $request->get('date_to');
         $clientId = $request->get('client_id');
 
-        if ($clientId) {
-            $query->where('client_id', $clientId);
-        }
-    
         $clients = Client::orderBy('name')->get();
 
         $query = Contact::with('client');
-    
+
+        if ($clientId) {
+            $query->where('client_id', $clientId);
+        }
+       
         if ($type) {
             $query->where('type', $type);
         }

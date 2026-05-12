@@ -27,9 +27,9 @@
     <form method="GET" action="{{ route('contacts.index') }}" class="filter-form">
         <select name="type">
             <option value="">Все типы</option>
-            <option value="call" {{ request()->get('type') == 'call' ? 'selected' : '' }}>📞 Звонок</option>
-            <option value="meeting" {{ request()->get('type') == 'meeting' ? 'selected' : '' }}>🤝 Встреча</option>
-            <option value="email" {{ request()->get('type') == 'email' ? 'selected' : '' }}>📧 Письмо</option>
+            <option value="call" {{ request()->get('type') == 'call' ? 'selected' : '' }}>Звонок</option>
+            <option value="meeting" {{ request()->get('type') == 'meeting' ? 'selected' : '' }}>Встреча</option>
+            <option value="email" {{ request()->get('type') == 'email' ? 'selected' : '' }}>Письмо</option>
         </select>
 
         <input type="date" name="date_from" value="{{ request()->get('date_from') }}" placeholder="Дата от">
