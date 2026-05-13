@@ -20,9 +20,9 @@
     @endif
 
     <div class="actions">
-        <a href="{{ route('clients.create') }}" class="btn">➕ Добавить клиента</a>
-        <a href="{{ route('clients.export.excel') }}" class="btn">📊 Экспорт в Excel</a>
-        <a href="{{ route('clients.export.csv') }}" class="btn">📥 Экспорт в CSV</a>
+        <a href="{{ route('clients.create') }}" class="btn">Добавить клиента</a>
+        <a href="{{ route('clients.export.excel') }}" class="btn">Экспорт в Excel</a>
+        <a href="{{ route('clients.export.csv') }}" class="btn">Экспорт в CSV</a>
     </div>
 
     <form method="GET" action="{{ route('clients.search') }}" class="filter-form">
@@ -37,7 +37,7 @@
         </select>
         <input type="number" name="deals_sum_from" placeholder="Сумма от" value="{{ request()->get('deals_sum_from') }}">
         <input type="number" name="deals_sum_to" placeholder="Сумма до" value="{{ request()->get('deals_sum_to') }}">
-        <button type="submit">Найти</button>
+        <button type="submit">Применить</button>
         <a href="{{ route('clients.index') }}" class="btn">Сбросить</a>
     </form>
 
